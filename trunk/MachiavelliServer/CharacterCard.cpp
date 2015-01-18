@@ -6,17 +6,18 @@ CharacterCard::CharacterCard()
 {
 }
 
-
 CharacterCard::~CharacterCard()
 {
 }
 
-std::string CharacterCard::getName()
+int CharacterCard::getID()
 {
-	return name;
+	return mID;
 }
 
-std::string CharacterCard::getDescription()
+std::string CharacterCard::getName()
 {
-	return description;
+	return mName;
 }
+
+

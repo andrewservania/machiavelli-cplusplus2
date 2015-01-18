@@ -1,15 +1,13 @@
 // MachiavelliServer.cpp : Defines the entry point for the console application.
-//
+// Andrew Servania
+//Studentennummer: 2036129
+//Sven van den Berg
+//Studentennummer: 2056189
+//Avans Hogeschool Den Bosch
+//Datum: 09-01-2015
+//Vak: C++2
 
 #include "stdafx.h"
-//
-//  main.cpp
-//  socketexample
-//
-//  Created by Bob Polis on 16/09/14.
-//  Copyright (c) 2014 Avans Hogeschool, 's-Hertogenbosch. All rights reserved.
-//
-
 #include <thread>
 #include <iostream>
 #include <exception>
@@ -21,6 +19,7 @@ using namespace std;
 #include "Socket.h"
 #include "Sync_queue.h"
 #include "ClientCommand.h"
+
 
 namespace socketexample {
 	const int tcp_port{ 1080 };
@@ -61,7 +60,8 @@ void consume_command() // runs in its own thread
 void handle_client(Socket* socket) // this function runs in a separate thread
 {
 	shared_ptr<Socket> client{ socket };
-	client->write("Welcome to Server 1.0! To quit, type 'quit'.\n");
+	
+	client->write("CONNECTED TO SERVER 1.0! To quit, type 'quit'.\n");
 	client->write(socketexample::prompt);
 
 	while (true) { // game loop
@@ -91,6 +91,7 @@ void handle_client(Socket* socket) // this function runs in a separate thread
 }
 
 
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	Game* gameObject = new Game();
@@ -102,19 +103,20 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	// create a server socket
 	ServerSocket server(socketexample::tcp_port);
-
+	std::cout << "Status: SERVER STARTED\n";
 	while (true) {
 		try {
 			// wait for connection from client; will create new socket
-			cerr << "server listening" << '\n';
+			cerr << "Status: Server listening..." << '\n';
 			Socket* client = nullptr;
 
 			while ((client = server.accept()) != nullptr) {
 				// communicate with client over new socket in separate thread
 				thread handler{ handle_client, client };
 				handler.detach(); // detaching is usually ugly, but in this case the right thing to do
-				std::cout << client->get_dotted_ip();
-				cerr << "server listening again" << '\n';
+			//	std::cout << client->get_dotted_ip();
+				//cerr << "Server listening again" << '\n';
+				cerr << "Status: Server listening for client input..\n";
 			}
 		}
 		catch (const exception& ex) {

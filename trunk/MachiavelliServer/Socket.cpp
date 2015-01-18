@@ -68,7 +68,7 @@
 
 #endif // Windows
 
-#pragma mark Socket
+//#pragma mark Socket
 
 Socket::Socket(SOCKET sock, const struct sockaddr& address)
 : sock {sock}
@@ -94,7 +94,8 @@ Socket::Socket(SOCKET sock, const struct sockaddr& address)
 
 ssize_t Socket::read(char *buf, size_t maxlen)
 {
-	ssize_t len = 0;
+	//ssize_t len = 0; TODO: attempted to remove warning here
+	size_t len = 0;
 	// might come in parts
 	while (ssize_t n = ::recv(sock, buf + len, int(maxlen - len), 0)) {
 		throw_if_min1((int)n);
@@ -165,7 +166,7 @@ std::string Socket::get_dotted_ip() const
 	return result;
 }
 
-#pragma mark ServerSocket
+//#pragma mark ServerSocket TODO: Attempted to remove warning here
 
 ServerSocket::ServerSocket(int port)
 {
@@ -192,7 +193,7 @@ Socket *ServerSocket::accept()
 	return client;
 }
 
-#pragma mark ClientSocket
+//#pragma mark ClientSocket TODO: Attempted to remove warning here
 
 ClientSocket::ClientSocket(const char *host, int port)
 {

@@ -1,5 +1,11 @@
 // Machiavelli.cpp : Defines the entry point for the console application.
-//
+// Andrew Servania
+//Studentennummer: 2036129
+//Sven van den Berg
+//Studentennummer: 2056189
+//Avans Hogeschool Den Bosch
+//Datum: 09-01-2015
+//Vak: C++2
 
 #include "stdafx.h"
 #include <iostream>
@@ -26,7 +32,7 @@ std::string loadASCIIart(std::ifstream& File){
 }
 
 void showASCIIart(){
-	std::cout << "Welcome to...\n";
+	std::cout << "\nWelcome to...\n";
 	std::ifstream Reader("MachiavelliText.txt");
 	std::string Art = loadASCIIart(Reader);
 	std::cout << Art << std::endl;
@@ -39,21 +45,26 @@ int _tmain(int argc, _TCHAR* argv[])
 
 
 	std::string serverIP = "127.0.0.1";
+	std::string messageToServer = "";
 	int serverPort = 1080;
-
+	int messageID = 0;
+	int maxMessageLength = 25;
 	std::unique_ptr<ClientSocket> clientSocket(new ClientSocket(serverIP.c_str(),serverPort));
 	std::cout << clientSocket->readline();
-	int i = 0;
-	std::string messageToServer = "";
-	std::cout << "\n Client initialized..\n";
+
 	showASCIIart();
+
 	std::cout <<"by Andrew Servania & Sven van den Berg\n";
 
 
 	while (true){
-		i++;
-		messageToServer = std::cin.get();
-		clientSocket->write(std::to_string(i) + messageToServer+ "\r\n");
+		messageID++;
+		
+		std::cin >> messageToServer;
+
+		// std::to_string(messageID) + messageToServer + "\r\n";
+
+		clientSocket->write(messageToServer + "\r\n");
 		std::cout << clientSocket->readline() + "\r\n";
 
 	}
