@@ -3,16 +3,26 @@
 
 class BuildingCard
 {
+
+
 private:
-	std::string name;
-	std::string description;
-	int cost;
+
+
 
 public:
+
+	std::string mName;
+	int mCost;
+	std::string mColor;
+	std::string mDescription;
+
+
 	BuildingCard();
 	~BuildingCard();
+
 	std::string getName();
-	std::string getDescription();
 	int getCost();
+	std::string getColor();
+	std::string getDescription();
 };
 

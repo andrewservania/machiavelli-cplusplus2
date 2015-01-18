@@ -3,13 +3,16 @@
 class CharacterCard
 {
 private:
-	std::string name;
-	std::string description;
+
 
 public:
+	int mID;
+	std::string mName;
+
 	CharacterCard();
 	~CharacterCard();
+	int getID();
 	std::string getName();
-	std::string getDescription();
+	
 };
 

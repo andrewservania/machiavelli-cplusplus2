@@ -3,10 +3,10 @@
 
 
 BuildingCard::BuildingCard(){
-	name = "new_building_name";
-	description = "This is a funky building";
-	cost = 7;
-
+	mName = "empty";
+	mCost = 0;
+	mColor = "empty";
+	mDescription = "empty";
 }
 
 
@@ -16,15 +16,22 @@ BuildingCard::~BuildingCard()
 
 std::string BuildingCard::getName()
 {
-	return name;
-}
-
-std::string BuildingCard::getDescription()
-{
-	return description;
+	return mName;
 }
 
 int BuildingCard::getCost()
 {
-	return cost;
+	return mCost;
 }
+
+std::string BuildingCard::getColor()
+{
+	return mColor;
+}
+
+std::string BuildingCard::getDescription()
+{
+	return mDescription;
+}
+
+
