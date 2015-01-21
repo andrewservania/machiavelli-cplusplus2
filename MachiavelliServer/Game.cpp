@@ -4,54 +4,26 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip> 
-
 using namespace std;
 
 Game::Game()
 {
+
 	initServer();
 }
 
-Game::~Game()
-{
+Game::~Game(){
+
 }
 
 
 void Game::initServer()
 {
-	if (readAndLoadBuildingCardsFromCSVFile() == true){
-	printf("Status: Building Cards loaded successfully.\n");
-	}
-	else{
-	printf("Status: Building Cards NOT loaded.\n");
-	}
-
-	if (readAndLoadCharacterCardsFromCSVFile()){
-	printf("Status: Character Cards loaded successfully.\n");
-	}
-	else{
-	printf("Status: Character Cards NOT loaded.\n");
-	}
-
-	/* Works as well, this is a template-method approach:
-	
-	BuildingCard buildingCard;
-	CharacterCard characterCard;
-
-	if (loadCSV(buildingCard) == true){
-		printf("Status: Building Cards loaded.");
-	}
-	else{
-		printf("Status: Building Cards NOT loaded.");
-	}
-
-	if (loadCSV(characterCard) == true){
-		printf("Status: Character Cards loaded.");
-	}
-	else{
-		printf("Status: Character Cards NOT loaded.");
-	}*/	
+	readAndLoadBuildingCardsFromCSVFile();
+	readAndLoadCharacterCardsFromCSVFile();
 }
+
+
 
 bool Game::waitForClients()
 {
@@ -65,7 +37,6 @@ bool Game::waitForClients()
 
 void Game::run()
 {
-
 
 	//dealCharacters();
 
@@ -156,6 +127,7 @@ bool Game::readAndLoadBuildingCardsFromCSVFile(){
 	std::ifstream file(fullFilePath);
 	char seperatorSymbol = ';';
 	std::string costString = "";
+	
 	BuildingCard buildingCard;
 	
 
@@ -173,10 +145,15 @@ bool Game::readAndLoadBuildingCardsFromCSVFile(){
 
 			mBuildingCards.add(buildingCard);
 		}
-	}
-
 	// Remove last element to eliminate unnecessary and non existing element
 	mBuildingCards.removeAt(mBuildingCards.getCardStackSize() - 1);
+	printf("Status: Building Cards loaded successfully.\n");
+	}
+	else{
+		std::cerr << "Status: Building Cards NOT loaded.\n";
+	}
+
+
 
 	return isLoadingSuccesful;
 
@@ -190,12 +167,15 @@ bool Game::readAndLoadCharacterCardsFromCSVFile(){
 	std::string fileName = "karakterkaarten.csv";
 	std::string fullFilePath = filePath + fileName;
 
+
 	std::ifstream file(fullFilePath);
 	char seperatorSymbol = ';';
 	std::string stringID = "";
 
 	CharacterCard characterCard;
-	if (file.good() == true){
+
+
+	 if (file.good() == true){
 		isLoadingSuccesful = true;
 
 		while (file.good() == true){
@@ -205,6 +185,12 @@ bool Game::readAndLoadCharacterCardsFromCSVFile(){
 			characterCard.mID = atoi(stringID.c_str());
 			mCharacterCards.add(characterCard);
 		}
+		// Remove last element to eliminate unnecessary and non existing element
+		mCharacterCards.removeAt(mCharacterCards.getCardStackSize() - 1);
+		printf("Status: Character Cards loaded successfully.\n");
+	}
+	else{
+		std::cerr << "Status: Character Cards NOT loaded.\n";
 	}
 
 	return isLoadingSuccesful;

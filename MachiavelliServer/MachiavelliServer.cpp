@@ -66,7 +66,18 @@ void handle_client(Socket* socket) // this function runs in a separate thread
 	while (true) { // game loop
 		try {
 			// read first line of request
-			string cmd = client->readline();
+			string cmd = "";
+			try
+			{
+				string cmd = client->readline();
+			}
+			catch (...)
+			{
+				cerr << "Client has disconnected\n";
+					break;
+			}
+
+		//	string cmd = client->readline();
 			cerr << "client (" << client->get() << ") said: " << cmd << '\n';
 
 			if (cmd == "quit") {
