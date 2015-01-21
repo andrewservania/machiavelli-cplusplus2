@@ -3,29 +3,25 @@
 #include <vector>
 #include "BuildingCard.h"
 #include "CharacterCard.h"
+#include "Socket.h"
+
+using namespace std;
+
 class Player
 {
 private:
 	std::string IPaddress;
-	int gold;
-	std::vector<BuildingCard> Hand;
-	std::vector<BuildingCard> Table;
-	std::vector<CharacterCard> Characters;
+	Socket *client;
+	int gold = 0;
 
 public:
-	Player();
+	Player(Socket *client, string IPaddress);
 	~Player();
 
-	void addGold();
-	void removeGold();
-	void addHandCard();
-	void addTableCard();
-	void addCharacter();
-	void buyBuilding();
-	void removeCharacters(); 
-	void removeHandCard();
-	void removeTableCard();
-	void clearAll();
-	void getTableSize();
+	void addGold(int goldToAdd);
+	void removeGold(int goldToRemove);
+	int getTableSize();
+
+	void sendMessage(string message);
 };
 
