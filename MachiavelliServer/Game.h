@@ -3,19 +3,37 @@
 #include <vector>
 #include "CardStack.h"
 #include <typeinfo>
+#include <memory>
+
+using namespace std;
+
 class Game
 {
 private:
-	std::vector<Player> mPlayers;
+	std::vector<shared_ptr<Player>> mPlayers;
+
 	CardStack<BuildingCard> mBuildingCards;
 	CardStack<CharacterCard> mCharacterCards;
+
+	CardStack<BuildingCard> mBuildingCardDiscards;
+	CardStack<CharacterCard> mCharacterCardDiscards;
+
+	std::vector<BuildingCard> mHandPlayer1;
+	std::vector<BuildingCard> mTablePlayer1;
+	unique_ptr<CharacterCard> mPlayer1Character1;
+	unique_ptr<CharacterCard> mPlayer1Character2;
+
+	std::vector<BuildingCard> mHandPlayer2;
+	std::vector<BuildingCard> mTablePlayer2;
+	unique_ptr<CharacterCard> mPlayer2Character1;
+	unique_ptr<CharacterCard> mPlayer2Character2;
 
 public:
 	Game();
 	~Game();
 
 	void initServer();
-	void waitForClients();
+	bool waitForClients();
 	void run();
 	void initGame();
 	void dealCharacters();
@@ -26,6 +44,8 @@ public:
 	void countPlayerScores();
 	void playCharacter();
 	
+	void addPlayer(Socket *client, string IPaddress);
+
 	bool readAndLoadBuildingCardsFromCSVFile();
 	
 	bool readAndLoadCharacterCardsFromCSVFile();

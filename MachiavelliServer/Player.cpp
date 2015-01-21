@@ -2,66 +2,29 @@
 #include "Player.h"
 
 
-Player::Player()
+Player::Player(Socket *client, string IPaddress)
 {
+	this->client = client;
+	this->IPaddress = IPaddress;
 }
 
 
 Player::~Player()
 {
-}
-
-void Player::addGold()
-{
 
 }
 
-void Player::removeGold()
+void Player::addGold(int goldToAdd)
 {
-
+	gold = gold + goldToAdd;
 }
 
-void Player::addHandCard()
+void Player::removeGold(int goldToRemove)
 {
-
+	gold = gold - goldToRemove;
 }
 
-void Player::addTableCard()
+void Player::sendMessage(string message)
 {
-
-}
-
-void Player::addCharacter()
-{
-
-}
-
-void Player::buyBuilding()
-{
-
-}
-
-void Player::removeCharacters()
-{
-
-}
-
-void Player::removeHandCard()
-{
-
-}
-
-void Player::removeTableCard()
-{
-
-}
-
-void Player::clearAll()
-{
-
-}
-
-void Player::getTableSize()
-{
-
+	client->write(message);
 }

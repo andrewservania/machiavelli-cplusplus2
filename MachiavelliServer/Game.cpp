@@ -5,27 +5,38 @@
 #include <fstream>
 #include <iomanip> 
 
+using namespace std;
+
 Game::Game()
 {
+	initServer();
+}
+
+Game::~Game()
+{
+}
+
+
+void Game::initServer()
+{
 	if (readAndLoadBuildingCardsFromCSVFile() == true){
-		printf("Status: Building Cards loaded successfully.\n");
+	printf("Status: Building Cards loaded successfully.\n");
 	}
 	else{
-		printf("Status: Building Cards NOT loaded.\n");
+	printf("Status: Building Cards NOT loaded.\n");
 	}
 
 	if (readAndLoadCharacterCardsFromCSVFile()){
-		printf("Status: Character Cards loaded successfully.\n");
+	printf("Status: Character Cards loaded successfully.\n");
 	}
 	else{
-		printf("Status: Character Cards NOT loaded.\n");
+	printf("Status: Character Cards NOT loaded.\n");
 	}
-	
+
 	/* Works as well, this is a template-method approach:
 	
 	BuildingCard buildingCard;
 	CharacterCard characterCard;
-
 
 	if (loadCSV(buildingCard) == true){
 		printf("Status: Building Cards loaded.");
@@ -39,44 +50,55 @@ Game::Game()
 	}
 	else{
 		printf("Status: Character Cards NOT loaded.");
+	}*/	
+}
+
+bool Game::waitForClients()
+{
+	if (mPlayers.size() < 2){
+		return true;
 	}
-
-	*/
-
-	//Initialize game stuff here of course :)
-
-
-
-}
-
-Game::~Game()
-{
-}
-
-
-void Game::initServer()
-{
-
-}
-
-void Game::waitForClients()
-{
-
+	else {
+		return false;
+	}
 }
 
 void Game::run()
 {
 
+
+	//dealCharacters();
+
 }
 
 void Game::initGame()
 {
+	mPlayers[0]->addGold(2);
+	mPlayers[1]->addGold(2);
 
+	for (int i = 0; i < 4; i++){
+		//AddHandCard
+	}
+	cout << "Game is initialized." << endl;
 }
 
 void Game::dealCharacters()
 {
-
+	// King gets to see upper characterCard, and gets to pick one characterCard
+	showCharacter();
+	pickCharacter();
+	//switch Active Player
+	// Other player gets to pick one, and gets to discard one characterCard
+	showCharacter();
+	discardCharacter();
+	//switch Active Player
+	// King gets to pick one, and gets to discard one characterCard
+	showCharacter();
+	discardCharacter();
+	//switch Active Player
+	// Other player gets to pick one, and gets to discard one characterCard
+	showCharacter();
+	discardCharacter();
 }
 
 void Game::discardCharacter()
@@ -107,6 +129,21 @@ void Game::countPlayerScores()
 void Game::playCharacter()
 {
 
+}
+
+void Game::addPlayer(Socket *client, string ip)
+{
+	auto player = make_shared<Player>(client, ip);
+	mPlayers.push_back(player);
+	if (mPlayers.size() == 1){
+		mPlayers[0]->sendMessage("You are Player 1");
+	}
+	else if (mPlayers.size() == 2){
+		mPlayers[1]->sendMessage("You are Player 2");
+	}
+	else {
+
+	}
 }
 
 bool Game::readAndLoadBuildingCardsFromCSVFile(){
