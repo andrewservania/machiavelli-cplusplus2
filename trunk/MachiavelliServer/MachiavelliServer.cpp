@@ -21,6 +21,7 @@ using namespace std;
 #include "Sync_queue.h"
 #include "ClientCommand.h"
 
+unique_ptr<Game> mGame;
 
 namespace socketexample {
 	const int tcp_port{ 1080 };
@@ -69,11 +70,12 @@ void handle_client(Socket* socket) // this function runs in a separate thread
 			string cmd = "";
 			try
 			{
-				string cmd = client->readline();
+				cmd = client->readline();
 			}
 			catch (...)
 			{
 				cerr << "Client has disconnected\n";
+				//mGame->removeLastConnectedPlayer(mGame->);
 					break;
 			}
 
@@ -104,8 +106,8 @@ void handle_client(Socket* socket) // this function runs in a separate thread
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	unique_ptr<Game> mGame = make_unique<Game>();
-
+		 mGame = make_unique<Game>();
+	
 	// start command consumer thread
 	thread consumer{ consume_command };
 	consumer.detach(); // detaching is usually ugly, but in this case the right thing to do
@@ -128,6 +130,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				handler.detach(); // detaching is usually ugly, but in this case the right thing to do
 				//std::cout << client->get_dotted_ip() << endl;
 				//cerr << "Server listening again" << '\n';
+				
 				cerr << "Status: Server listening for client input..\n";
 				string ip = client->get_dotted_ip();
 				mGame->addPlayer(client,ip);

@@ -8,10 +8,9 @@ Player::Player(Socket *client, string IPaddress)
 	this->IPaddress = IPaddress;
 }
 
-
 Player::~Player()
 {
-
+	mPlayerID = 0;
 }
 
 void Player::addGold(int goldToAdd)
@@ -26,5 +25,11 @@ void Player::removeGold(int goldToRemove)
 
 void Player::sendMessage(string message)
 {
-	client->write(message);
+	client->write(message + "\r\n");
 }
+
+void Player::setPlayerID(int ID)
+{
+	mPlayerID = ID;
+}
+

@@ -13,6 +13,7 @@ private:
 	std::string IPaddress;
 	Socket *client;
 	int gold = 0;
+	int mPlayerID;
 
 public:
 	Player(Socket *client, string IPaddress);
@@ -21,7 +22,7 @@ public:
 	void addGold(int goldToAdd);
 	void removeGold(int goldToRemove);
 	int getTableSize();
-
 	void sendMessage(string message);
+	void setPlayerID(int ID);
 };
 

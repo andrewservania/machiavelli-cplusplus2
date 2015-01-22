@@ -43,30 +43,30 @@ void showASCIIart(){
 int _tmain(int argc, _TCHAR* argv[])
 {
 
-
 	std::string serverIP = "127.0.0.1";
 	std::string messageToServer = "";
 	int serverPort = 1080;
 	int messageID = 0;
-	int maxMessageLength = 25;
-	std::unique_ptr<ClientSocket> clientSocket(new ClientSocket(serverIP.c_str(),serverPort));
-	std::cout << clientSocket->readline();
 
+	int maxMessageLength = 25;
+
+
+	std::unique_ptr<ClientSocket> clientSocket(new ClientSocket(serverIP.c_str(), serverPort));
+	
+	
+	
 	showASCIIart();
 
 	std::cout <<"by Andrew Servania & Sven van den Berg\n";
-
+	std::cout << clientSocket->readline() + "\r\n";
 
 	while (true){
+		std::cout << clientSocket->readline() + "\r\n";
 		messageID++;
 		
 		std::cin >> messageToServer;
-
-		// std::to_string(messageID) + messageToServer + "\r\n";
-
 		clientSocket->write(messageToServer + "\r\n");
 		std::cout << clientSocket->readline() + "\r\n";
-
 	}
 
 
