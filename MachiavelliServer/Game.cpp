@@ -8,7 +8,7 @@ using namespace std;
 
 Game::Game()
 {
-
+	clientNumber = 0;
 	initServer();
 }
 
@@ -105,6 +105,8 @@ void Game::playCharacter()
 void Game::addPlayer(Socket *client, string ip)
 {
 	auto player = make_shared<Player>(client, ip);
+	clientNumber++;
+	player->setPlayerID(clientNumber);
 	mPlayers.push_back(player);
 	if (mPlayers.size() == 1){
 		mPlayers[0]->sendMessage("You are Player 1");
@@ -196,3 +198,7 @@ bool Game::readAndLoadCharacterCardsFromCSVFile(){
 	return isLoadingSuccesful;
 }
 
+void Game::removeLastConnectedPlayer()
+{
+	mPlayers.pop_back();
+}

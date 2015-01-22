@@ -28,6 +28,8 @@ private:
 	unique_ptr<CharacterCard> mPlayer2Character1;
 	unique_ptr<CharacterCard> mPlayer2Character2;
 
+	int clientNumber;
+
 public:
 	Game();
 	~Game();
@@ -43,12 +45,10 @@ public:
 	void playRound();
 	void countPlayerScores();
 	void playCharacter();
-	
 	void addPlayer(Socket *client, string IPaddress);
-
 	bool readAndLoadBuildingCardsFromCSVFile();
-	
 	bool readAndLoadCharacterCardsFromCSVFile();
+	void removeLastConnectedPlayer();
 
 	template<class T>
 	bool loadCSV(T card);
