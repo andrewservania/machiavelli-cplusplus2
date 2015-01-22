@@ -33,3 +33,8 @@ void Player::setPlayerID(int ID)
 	mPlayerID = ID;
 }
 
+Socket* Player::getPlayerClient()
+{
+	return client;
+}
+

@@ -74,8 +74,8 @@ void handle_client(Socket* socket) // this function runs in a separate thread
 			}
 			catch (...)
 			{
-				cerr << "Client has disconnected\n";
-				//mGame->removeLastConnectedPlayer(mGame->);
+				cerr << "Client " << client->get_dotted_ip() << " with socket: " << client->get() << " has disconnected\n";
+				mGame->removeLastDisconnectedPlayer(client);
 					break;
 			}
 

@@ -24,5 +24,6 @@ public:
 	int getTableSize();
 	void sendMessage(string message);
 	void setPlayerID(int ID);
+	Socket* getPlayerClient();
 };
 
