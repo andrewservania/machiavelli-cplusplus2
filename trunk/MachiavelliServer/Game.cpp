@@ -16,14 +16,11 @@ Game::~Game(){
 
 }
 
-
 void Game::initServer()
 {
 	readAndLoadBuildingCardsFromCSVFile();
 	readAndLoadCharacterCardsFromCSVFile();
 }
-
-
 
 bool Game::waitForClients()
 {
@@ -198,7 +195,26 @@ bool Game::readAndLoadCharacterCardsFromCSVFile(){
 	return isLoadingSuccesful;
 }
 
-void Game::removeLastConnectedPlayer()
+/*To remove players that have disconnected at any given point*/
+void Game::removeLastDisconnectedPlayer(shared_ptr<Socket> client)
 {
-	mPlayers.pop_back();
+	string currentClientIP = client->get_dotted_ip();
+	SOCKET currentClientSocket = client->get();
+
+	for (std::vector<shared_ptr<Player>>::iterator it = mPlayers.begin(); it != mPlayers.end(); ++it) {
+		/* std::cout << *it; ... */
+		
+
+		if (currentClientIP == (*it).get()->getPlayerClient()->get_dotted_ip()
+			&& currentClientSocket == (*it).get()->getPlayerClient()->get()){
+			//last disconnected player/client found!
+			//Now delete him from the vector
+			mPlayers.erase(it);
+			//mPlayers.shrink_to_fit();
+			break;
+		}
+		
+
+	}
+
 }

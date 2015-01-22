@@ -48,7 +48,9 @@ public:
 	void addPlayer(Socket *client, string IPaddress);
 	bool readAndLoadBuildingCardsFromCSVFile();
 	bool readAndLoadCharacterCardsFromCSVFile();
-	void removeLastConnectedPlayer();
+	void removeLastDisconnectedPlayer(shared_ptr<Socket> client);
+	int getPlayer(int ID);
+
 
 	template<class T>
 	bool loadCSV(T card);
