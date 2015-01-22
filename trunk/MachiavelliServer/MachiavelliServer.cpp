@@ -76,6 +76,7 @@ void handle_client(Socket* socket) // this function runs in a separate thread
 			{
 				cerr << "Client " << client->get_dotted_ip() << " with socket: " << client->get() << " has disconnected\n";
 				mGame->removeLastDisconnectedPlayer(client);
+
 					break;
 			}
 
@@ -106,7 +107,7 @@ void handle_client(Socket* socket) // this function runs in a separate thread
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-		 mGame = make_unique<Game>();
+	mGame = make_unique<Game>();
 	
 	// start command consumer thread
 	thread consumer{ consume_command };
@@ -117,6 +118,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::cout << "Status: SERVER STARTED\n";
 
 	bool gameStarted = false;
+	Socket* client = nullptr;
 
 	while (mGame->waitForClients()) {
 		try {
@@ -124,39 +126,44 @@ int _tmain(int argc, _TCHAR* argv[])
 			cerr << "Status: Server listening..." << '\n';
 			Socket* client = nullptr;
 
-			while (((client = server.accept()) != nullptr) ) {
+			while (((client = server.accept()) != nullptr)) {
 				// communicate with client over new socket in separate thread
 				thread handler{ handle_client, client };
 				handler.detach(); // detaching is usually ugly, but in this case the right thing to do
 				//std::cout << client->get_dotted_ip() << endl;
 				//cerr << "Server listening again" << '\n';
-				
+
 				cerr << "Status: Server listening for client input..\n";
 				string ip = client->get_dotted_ip();
-				mGame->addPlayer(client,ip);
+				mGame->addPlayer(client, ip);
 				if (!mGame->waitForClients()){
 					break;
 				}
+
+
+
 			}
-
-			
-
 		}
 		catch (const exception& ex) {
 			cerr << ex.what() << ", resuming..." << '\n';
-		}	
+		}
 	}
-	while (true){
+	while (!mGame->waitForClients()){
 		try {
 			if (!gameStarted){
 				mGame->initGame();
 				gameStarted = true;
 			}
+				
+			// communicate with client over new socket in separate thread
+			thread handler{ handle_client, client};	
+			handler.detach(); // detaching is usually ugly, but in this case the right thing to do
 			mGame->run();
 		}
 		catch (const exception& ex) {
 			cerr << ex.what() << ", resuming..." << '\n';
 		}
+			
 	}
 	return 0;
 }

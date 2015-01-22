@@ -105,6 +105,7 @@ void Game::addPlayer(Socket *client, string ip)
 	clientNumber++;
 	player->setPlayerID(clientNumber);
 	mPlayers.push_back(player);
+
 	if (mPlayers.size() == 1){
 		mPlayers[0]->sendMessage("You are Player 1");
 	}

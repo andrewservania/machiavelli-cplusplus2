@@ -45,6 +45,9 @@ CardStack<T>::~CardStack()
 template<class T>
 void CardStack<T>::add(T card){
 	//TODO: not implemented yet: add card to stack here..
+
+
+
 	cards.push_back(card);
 }
 
@@ -57,3 +60,4 @@ template<class T>
 bool CardStack<T>::loadCSV(){
 
 }
+
