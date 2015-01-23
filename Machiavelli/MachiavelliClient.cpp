@@ -61,7 +61,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::cout << clientSocket->readline() + "\r\n";
 
 	while (true){
-		std::cout << clientSocket->readline() + "\r\n";
+		//std::cout << clientSocket->readline() + "\r\n";
 		messageID++;
 		
 		std::cin >> messageToServer;
