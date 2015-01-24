@@ -5,7 +5,7 @@
 //
 // Implementation of classes Socket, ServerSocket and CientSocket
 //=============================================================================
-
+//CLIENT SOCKET.CPP
 #include "stdafx.h"
 
 #include "Socket.h"
@@ -16,6 +16,9 @@
 #include <cstring>
 #include <stdexcept>
 #include <memory>
+
+#include <chrono>
+#include <thread>
 
 #if defined(__APPLE__) || defined(__linux__)
 
@@ -135,13 +138,25 @@ Socket::~Socket()
 
 void Socket::close()
 {
-	std::cerr << "will close socket " << sock << std::endl;
+	try
+	{
+		printf("Please wait..\n");
+		std::this_thread::sleep_for(std::chrono::seconds(3));
+
+		std::cerr << "Will close socket " << sock << std::endl;
 #if defined(__APPLE__) || defined(__linux__)
-	throw_if_min1(::close(sock));
+		throw_if_min1(::close(sock));
 #else
-	::closesocket(sock);
+		::closesocket(sock);
 #endif
-	sock = 0;
+		sock = 0;
+	}
+	catch (...)
+	{
+		//Socket cannot be closed
+	}
+
+	
 }
 
 std::string Socket::get_dotted_ip() const

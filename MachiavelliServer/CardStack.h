@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "BuildingCard.h"
+#include <algorithm>
 
 template <class T>
 class CardStack
@@ -53,7 +54,7 @@ void CardStack<T>::add(T card){
 
 template<class T>
 void CardStack<T>::shuffle(){
-
+	std::random_shuffle(cards.begin(), cards.end());
 }
 
 template<class T>

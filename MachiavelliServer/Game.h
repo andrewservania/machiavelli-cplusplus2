@@ -25,7 +25,7 @@ public:
 	Game();
 	~Game();
 
-	std::vector<shared_ptr<Player>> mPlayers;
+	std::vector<shared_ptr<Player > > mPlayers;
 
 	void initServer();
 	bool waitForClients();
@@ -42,7 +42,7 @@ public:
 	bool readAndLoadBuildingCardsFromCSVFile();
 	bool readAndLoadCharacterCardsFromCSVFile();
 	void removeLastDisconnectedPlayer(shared_ptr<Socket> client);
-	int getPlayer(int ID);
+	shared_ptr<Player> getPlayer(int ID);
 
 
 	template<class T>

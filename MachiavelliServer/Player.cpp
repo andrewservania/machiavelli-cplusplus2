@@ -2,6 +2,7 @@
 #include "Player.h"
 
 
+
 Player::Player(Socket *client, string IPaddress)
 {
 	this->client = client;
@@ -82,4 +83,5 @@ Socket* Player::getPlayerClient()
 {
 	return client;
 }
+
 
