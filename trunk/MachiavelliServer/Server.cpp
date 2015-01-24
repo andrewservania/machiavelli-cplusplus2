@@ -1,14 +1,16 @@
 #include "stdafx.h"
 #include "Server.h"
 
+#include <thread>
+#include <chrono>
+
+
 static Sync_queue<ClientCommand> queue;
 
 Server::Server()
 {
 	mGame = make_unique<Game>();
-
 	// create a server socket
-	
 }
 
 
@@ -16,6 +18,7 @@ Server::~Server()
 {
 
 }
+
 
 void Server::runServer()
 {
@@ -39,14 +42,18 @@ void Server::listenForClients()
 	while (true) {
 		try {
 			// wait for connection from client; will create new socket
-			cerr << "server listening" << '\n';
+			cerr << "Server listening" << '\n';
 			Socket* client = nullptr;
 
 			while ((client = server.accept()) != nullptr) {
+
+					mGame->addPlayer(client, client->get_dotted_ip()); ///add new connected client to mPlayers in game
+					printf("A player has connected\n");
+
 				// communicate with client over new socket in separate thread
 				thread handler{ &Server::handleClient, this, client };
 				handler.detach(); // detaching is usually ugly, but in this case the right thing to do
-				cerr << "server listening again" << '\n';
+				cerr << "Server listening again" << '\n';
 			}
 		}
 		catch (const exception& ex) {
@@ -70,11 +77,10 @@ void Server::handleClient(Socket* socket)
 			{
 				cmd = client->readline();
 			}
-			catch (...)
+			catch (...)/// To properly deal with clients who suddenly disconnect
 			{
 				cerr << "Client " << client->get_dotted_ip() << " with socket: " << client->get() << " has disconnected\n";
 				mGame->removeLastDisconnectedPlayer(client);
-
 				break;
 			}
 
@@ -130,3 +136,26 @@ void Server::consumeCommand()
 		}
 	}
 }
+
+void Server::pingPlayers()
+{
+	while (true){
+		if (!mGame->mPlayers.empty()){
+			//	throw std::logic_error("The method or operation is not implemented.");
+			mGame->mPlayers.size();
+			
+			for (size_t i = 0; i < mGame->mPlayers.size(); i++){
+				std::this_thread::sleep_for((std::chrono::seconds(1)));
+				mGame->getPlayer(i).get()->sendMessage("Ping Message: Hi! Welcome to Machiavelli!");
+			}
+		}
+		else{
+			std::this_thread::sleep_for((std::chrono::seconds(1)));
+			printf("\nWaiting for clients to connect..");
+		}
+
+	}
+
+	
+}
+

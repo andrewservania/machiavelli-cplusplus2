@@ -153,6 +153,7 @@ bool Game::readAndLoadBuildingCardsFromCSVFile(){
 		std::cerr << "Status: Building Cards NOT loaded.\n";
 	}
 
+	mBuildingCards.shuffle();
 
 
 	return isLoadingSuccesful;
@@ -193,6 +194,7 @@ bool Game::readAndLoadCharacterCardsFromCSVFile(){
 		std::cerr << "Status: Character Cards NOT loaded.\n";
 	}
 
+	mCharacterCards.shuffle();
 	return isLoadingSuccesful;
 }
 
@@ -218,4 +220,11 @@ void Game::removeLastDisconnectedPlayer(shared_ptr<Socket> client)
 
 	}
 
+}
+
+shared_ptr<Player> Game::getPlayer(int ID)
+{
+	shared_ptr<Player > spClient{ mPlayers.at(ID) };
+	
+	return spClient;
 }

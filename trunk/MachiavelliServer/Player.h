@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <memory>
 #include "BuildingCard.h"
 #include "CharacterCard.h"
 #include "Socket.h"

@@ -17,8 +17,8 @@ class Server
 private:
 	const int tcp_port{ 1080 };
 	const string prompt{ "> " };
-
 	unique_ptr<Game> mGame;
+	std::vector<Socket*> connectedClients;
 
 public:
 	Server();
@@ -29,5 +29,7 @@ public:
 	void listenForClients();
 	void handleClient(Socket* socket);
 	void consumeCommand();
+	void sendMessageToClient(Socket* client, string message);
+	void pingPlayers();
 };
 

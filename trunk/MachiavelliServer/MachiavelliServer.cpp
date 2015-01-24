@@ -12,12 +12,16 @@
 #include <iostream>
 #include <exception>
 #include <memory>
+#include <ctime>
 #include "Server.h"
 
 using namespace std;
 
+
 int _tmain(int argc, _TCHAR* argv[])
 {
+	/*Necessary for random card-stack shuffling*/
+	std::srand(unsigned(std::time(0)));
 	Server server = Server();
 	server.runServer();
 	
@@ -52,9 +56,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	//			if (!mGame->waitForClients()){
 	//				break;
 	//			}
-
-
-
 	//		}
 	//	}
 	//	catch (const exception& ex) {
