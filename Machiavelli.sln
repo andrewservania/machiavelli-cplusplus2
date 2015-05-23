@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Machiavelli", "Machiavelli\Machiavelli.vcxproj", "{FEA39A0F-87FD-4236-87C2-896647B80E17}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MachiavelliServer", "MachiavelliServer\MachiavelliServer.vcxproj", "{BEAA1BE5-D2B6-4AE9-A6A8-FCB7DFE0FD84}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FEA39A0F-87FD-4236-87C2-896647B80E17}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FEA39A0F-87FD-4236-87C2-896647B80E17}.Debug|Win32.Build.0 = Debug|Win32
+		{FEA39A0F-87FD-4236-87C2-896647B80E17}.Release|Win32.ActiveCfg = Release|Win32
+		{FEA39A0F-87FD-4236-87C2-896647B80E17}.Release|Win32.Build.0 = Release|Win32
+		{BEAA1BE5-D2B6-4AE9-A6A8-FCB7DFE0FD84}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BEAA1BE5-D2B6-4AE9-A6A8-FCB7DFE0FD84}.Debug|Win32.Build.0 = Debug|Win32
+		{BEAA1BE5-D2B6-4AE9-A6A8-FCB7DFE0FD84}.Release|Win32.ActiveCfg = Release|Win32
+		{BEAA1BE5-D2B6-4AE9-A6A8-FCB7DFE0FD84}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
