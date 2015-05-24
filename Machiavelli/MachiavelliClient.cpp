@@ -83,7 +83,7 @@ void MachiavelliClient::listenToMessagesFromServer()
 		{
 			std::string messageFromServer = clientSocket->readline() + "\r\n";
 
-			if (messageFromServer == "CLEARSCREEN\r\n" || messageFromServer == "> CLEARSCREEN\r\n"){
+			if (messageFromServer.find("CLEARSCREEN") != std::string::npos ){ // if the word 'CLEARSCREEN' is found. Execute a clean screen.
 				clearScreen();
 				
 			}

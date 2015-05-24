@@ -26,7 +26,6 @@ Server::~Server()
 
 void Server::runServer()
 {
-	GameState::currentGameState = GameState::GameStates::WAITING_FOR_PLAYERS_TO_CONNECT;
 	listenForClients();
 }
 
@@ -56,15 +55,23 @@ void Server::listenForClients()
 					printf("A player has connected\n");
 
 				// communicate with client over new socket in separate thread
-				thread handler{ &Server::handleClient, this, client };
+				std::thread handler{ &Server::handleClient, this, client };
 				handler.detach(); // detaching is usually ugly, but in this case the right thing to do
 
 				cerr << "Server listening again" << '\n';
+
+
+				//The game will start when this if-statement has become true!
 				if (mGame->getAmountOfConnectedPlayers() == 2){
 					notifyPlayersGameHasStarted();
-					GameState::currentGameState = GameState::GameStates::KING_PEEKS_AT_TOP_CARD_AND_DISCARDS;
+					mGame->playerOneIPaddress = mGame->connectedPlayers.at(0)->getPlayerClient()->get_dotted_ip();
+					mGame->playerTwoIPaddress = mGame->connectedPlayers.at(1)->getPlayerClient()->get_dotted_ip();
+					mGame->currentGameState = Game::KING_PEEKS_AT_TOP_CARD_AND_DISCARDS;
 					//break;
 				}
+
+
+
 
 			}
 		}
@@ -117,7 +124,7 @@ void Server::handleClient(Socket* socket)
 		}
 	}
 }
-std::string serverName = "MACHIAVELLI-SERVER: ";
+
 void Server::consumeCommand()
 {
 	while (true) {
@@ -129,7 +136,7 @@ void Server::consumeCommand()
 				// TODO handle command here
 				if (mGame->getAmountOfConnectedPlayers() < 2){
 
-					client->write(serverName+"Please wait for the other player to connect first!\nThank you!\n");
+					client->write("MACHIAVELLI-SERVER: Please wait for the other player to connect first!\nThank you!\n");
 
 				}
 				else{
@@ -137,172 +144,7 @@ void Server::consumeCommand()
 
 
 
-
-
-
-
-					  if (GameState::currentGameState == GameState::GameStates::KING_PEEKS_AT_TOP_CARD_AND_DISCARDS){
-						 //then perform these specific commands
-
-						  if (message == "0"){
-							  CharacterCard topCard = mGame->peekCharacter();
-							  client->write(serverName + "Card name: " + topCard.getName() + " Card ID: " + std::to_string(topCard.getID()) + "\n");
-						  }
-						  else if (message == "1"){
-							  mGame->discardTopCharacterCard();
-							  client->write("CLEARSCREEN\n");
-							  client->write("Top card discarded\n");
-							  client->write("Now choose one of the remaining character cards:\n");
-							  mGame->showRemainingCharactersCardsInDeck(client);
-							  GameState::currentGameState = GameState::GameStates::PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN;
-						  }
-						  else{	// All other commands are ignored and the current player is notified
-							  client->write("Hey, you wrote: '");
-							  client->write(command.get_cmd());
-							  client->write("', but I'm not doing anything with it.\n");
-						  }
-
-					  }
-
-
-
-
-					  else if (GameState::currentGameState == GameState::GameStates::PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN){
-
-						  if (message == "0"){
-							  mGame->pickCharacterCardAndDiscard(0, client, 0);
-							  GameState::currentGameState = GameState::GameStates::PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN;
-						  }
-						  else if (message == "1"){
-							  mGame->pickCharacterCardAndDiscard(1, client, 0);
-							  GameState::currentGameState = GameState::GameStates::PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN;
-						  }
-						  else if (message == "2"){
-							  mGame->pickCharacterCardAndDiscard(2, client, 0);
-							  GameState::currentGameState = GameState::GameStates::PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN;
-						  }
-						  else if (message == "3"){
-							  mGame->pickCharacterCardAndDiscard(3, client, 0);
-							  GameState::currentGameState = GameState::GameStates::PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN;
-						  }
-						  else if (message == "4"){
-							  mGame->pickCharacterCardAndDiscard(4, client, 0);
-							  GameState::currentGameState = GameState::GameStates::PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN;
-						  }
-						  else if (message == "5"){
-							  mGame->pickCharacterCardAndDiscard(5, client, 0);
-							  GameState::currentGameState = GameState::GameStates::PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN;
-						  }
-						  else{	// All other commands are ignored and the current player is notified
-							  client->write("Hey, you wrote: '");
-							  client->write(command.get_cmd());
-							  client->write("', but I'm not doing anything with it.\n");
-						  }
-					  }
-
-
-					  else if (GameState::currentGameState == GameState::GameStates::PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN){
-
-						  if (message == "0"){
-							  mGame->pickCharacterCardAndDiscard(0, client, 1);
-							  GameState::currentGameState = GameState::GameStates::PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN;
-						  }
-						  else if (message == "1"){
-							  mGame->pickCharacterCardAndDiscard(1, client, 1);
-							  GameState::currentGameState = GameState::GameStates::PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN;
-
-						  }
-						  else if (message == "2"){
-							  mGame->pickCharacterCardAndDiscard(2, client, 1);
-							  GameState::currentGameState = GameState::GameStates::PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN;
-
-						  }
-						  else if (message == "3"){
-							  mGame->pickCharacterCardAndDiscard(3, client, 1);
-							  GameState::currentGameState = GameState::GameStates::PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN;
-
-						  }
-						  else if (message == "4"){
-							  mGame->pickCharacterCardAndDiscard(4, client, 1);
-							  GameState::currentGameState = GameState::GameStates::PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN;
-
-						  }
-						  else if (message == "5"){
-							  mGame->pickCharacterCardAndDiscard(5, client, 1);
-							  GameState::currentGameState = GameState::GameStates::PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN;
-
-						  }
-						  else{	// All other commands are ignored and the current player is notified
-							  client->write("Hey, you wrote: '");
-							  client->write(command.get_cmd());
-							  client->write("', but I'm not doing anything with it.\n");
-						  }
-					  }
-
-
-
-
-
-
-
-
-					  else if (GameState::currentGameState == GameState::GameStates::PLAYER_ONE_TURN){
-						  if (message == "0"){
-							  // Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)
-						  }
-						  else if (message == "1"){
-							  // Neem 2 goudstukken
-						  }
-						  else if (message == "2"){
-							  // Neem 2 bouwkaarten en leg er 1 af
-						  }
-						  else if (message == "3"){
-							  // Maak gebruik van de karaktereingenschap van de Magier
-						  }
-						  else{// All other commands are ignored and the current player is notified
-							  client->write("Hey, you wrote: '");
-							  client->write(command.get_cmd());
-							  client->write("', but I'm not doing anything with it.\n");
-						  }
-
-					  }
-
-
-
-
-
-
-
-					  else if (GameState::currentGameState == GameState::GameStates::PLAYER_TWO_TURN)
-					  {
-						  if (message == "0"){
-							  // Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)
-						  }
-						  else if (message == "1"){
-							  // Neem 2 goudstukken
-						  }
-						  else if (message == "2"){
-							  // Neem 2 bouwkaarten en leg er 1 af
-						  }
-						  else if (message == "3"){
-							  // Maak gebruik van de karaktereingenschap van de Magier
-						  }
-						  else{// All other commands are ignored and the current player is notified
-							  client->write("Hey, you wrote: '");
-							  client->write(command.get_cmd());
-							  client->write("', but I'm not doing anything with it.\n");
-						  }
-					  }
-
-
-
-
-
-
-					  //else if (GameState::currentGameState == GameState::GameStates::WAITING_FOR_PLAYERS_TO_CONNECT)
-					  //{
-
-					  //}
+					mGame->consumeCommand(message, client);
 
 				}
 			}
@@ -325,11 +167,11 @@ void Server::consumeCommand()
 void Server::pingPlayers()
 {
 	while (true){
-		if (!mGame->mPlayers.empty()){
+		if (!mGame->connectedPlayers.empty()){
 			//	throw std::logic_error("The method or operation is not implemented.");
-			mGame->mPlayers.size();
+			mGame->connectedPlayers.size();
 			
-			for (size_t i = 0; i < mGame->mPlayers.size(); i++){
+			for (size_t i = 0; i < mGame->connectedPlayers.size(); i++){
 				std::this_thread::sleep_for((std::chrono::seconds(1)));
 				mGame->getPlayer(i).get()->sendMessage("Ping Message: Hi! Welcome to Machiavelli!");
 			}
@@ -358,8 +200,8 @@ void Server::handleIncomingMessage(std::shared_ptr<Socket> client, std::string m
 void Server::sendMessageToAllPlayers(std::string message)
 {
 
-	mGame->mPlayers.at(0)->getPlayerClient()->write(message);
-	mGame->mPlayers.at(1)->getPlayerClient()->write(message);
+	mGame->connectedPlayers.at(0)->getPlayerClient()->write(message);
+	mGame->connectedPlayers.at(1)->getPlayerClient()->write(message);
 
 }
 
@@ -368,4 +210,9 @@ void Server::notifyPlayersGameHasStarted()
 	thread gameStartedMessagingHandler{ &Server::sendMessageToAllPlayers, "CLEARSCREEN\n" };
 	gameStartedMessagingHandler.detach();
 	mGame->run();
+}
+
+void Server::sendMessageToPlayer(std::string message, int playerNumber)
+{
+	mGame->connectedPlayers.at(playerNumber)->getPlayerClient()->write(message);
 }

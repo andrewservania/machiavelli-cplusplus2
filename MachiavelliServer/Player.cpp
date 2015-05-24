@@ -3,10 +3,10 @@
 
 
 
-Player::Player(Socket *client, string IPaddress)
+Player::Player(Socket* socket, std::string ip)
 {
-	this->client = client;
-	this->IPaddress = IPaddress;
+	client = socket;
+	IPaddress = ip;
 	gold = 0;
 }
 
@@ -35,7 +35,6 @@ void Player::addTableCard()
 
 }
 
-
 void Player::buyBuilding()
 {
 
@@ -63,10 +62,11 @@ void Player::clearAll()
 
 int Player::getTableSize()
 {
-	return Table.size();
+	//return Table.size();
+	return -1;
 }
 
-void Player::sendMessage(string message)
+void Player::sendMessage(std::string message)
 {
 	client->write(message + "\r\n");
 }
@@ -108,12 +108,27 @@ int Player::getCurrentAmountOfGold()
 
 void Player::addBuildingCard(BuildingCard buildingCard)
 {
-	Buildings.push_back(buildingCard);
+	BuildingsCards.push_back(buildingCard);
 }
 
 void Player::addCharacterCard(CharacterCard characterCard)
 {
-	Characters.push_back(characterCard);
+	CharacterCards.push_back(characterCard);
+}
+
+Socket* Player::getSocket()
+{
+	return client;
+}
+
+std::vector<CharacterCard> Player::getAllCharacterCards()
+{
+	return CharacterCards;
+}
+
+std::vector<BuildingCard> Player::getAllBuildingCards()
+{
+	return BuildingsCards;
 }
 
 

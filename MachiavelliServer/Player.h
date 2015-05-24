@@ -5,27 +5,27 @@
 #include "BuildingCard.h"
 #include "CharacterCard.h"
 #include "Socket.h"
+#include <memory>
 
-using namespace std;
 
 class Player
 {
 private:
 	std::string IPaddress;
-	Socket *client;
+	Socket* client;
 	int gold = 0;
 	int mPlayerID;
-	std::vector<BuildingCard> Hand;
-	std::vector<BuildingCard> Table;
+	//std::vector<BuildingCard> Hand;
+	//std::vector<BuildingCard> Table;
 
 
-	std::vector<CharacterCard> Characters;
-	std::vector<BuildingCard> Buildings;
+	std::vector<CharacterCard> CharacterCards;
+	std::vector<BuildingCard> BuildingsCards;
 	int playerNumber;
 	std::shared_ptr<CharacterCard> currentCharacter;
 
 public:
-	Player(Socket *client, string IPaddress);
+	Player(Socket* socket, std::string ip);
 	~Player();
 
 	void addGold(int goldToAdd);
@@ -45,7 +45,7 @@ public:
 
 	void clearAll();
 	int getTableSize();
-	void sendMessage(string message);
+	void sendMessage(std::string message);
 
 	Socket* getSocket();
 	void setPlayerID(int ID);
@@ -55,5 +55,9 @@ public:
 	void setCurrentCharacter(std::shared_ptr<CharacterCard> character);
 	std::shared_ptr<CharacterCard>  getCurrentCharacter();
 	int getCurrentAmountOfGold();
+
+	std::vector<CharacterCard> getAllCharacterCards();
+	std::vector<BuildingCard> getAllBuildingCards();
+
 };
 
