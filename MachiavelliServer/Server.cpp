@@ -7,6 +7,9 @@
 
 static Sync_queue<ClientCommand> queue;
 
+static std::unique_ptr<Game> mGame;
+static std::vector<Socket*> connectedClients;
+
 Server::Server()
 {
 	mGame = make_unique<Game>();
@@ -23,6 +26,7 @@ Server::~Server()
 
 void Server::runServer()
 {
+	GameState::currentGameState = GameState::GameStates::WAITING_FOR_PLAYERS_TO_CONNECT;
 	listenForClients();
 }
 
@@ -54,10 +58,11 @@ void Server::listenForClients()
 				// communicate with client over new socket in separate thread
 				thread handler{ &Server::handleClient, this, client };
 				handler.detach(); // detaching is usually ugly, but in this case the right thing to do
+
 				cerr << "Server listening again" << '\n';
 				if (mGame->getAmountOfConnectedPlayers() == 2){
-					thread gameStartedMessagingHandler{ &Server::sendMessageToAllPlayers, this, "GAMESTARTED\n" };
-					gameStartedMessagingHandler.detach();
+					notifyPlayersGameHasStarted();
+					GameState::currentGameState = GameState::GameStates::INITIAL_CARD_DEALING;
 					//break;
 				}
 
@@ -130,41 +135,79 @@ void Server::consumeCommand()
 				else{
 					std::string message = command.get_cmd();
 
-					if (message == "0"){
-						CharacterCard topCard = mGame->peekCharacter();
 
-						client->write(serverName + "Card name: " + topCard.getName() + " Card ID: " + std::to_string(topCard.getID()) + "\n");
-					}
-					else if (message == "1"){
+					  if (GameState::currentGameState == GameState::GameStates::INITIAL_CARD_DEALING){
+						 //then perform these specific commands
 
-					}
-					else if (message == "2"){
+						  if (message == "0"){
+							  CharacterCard topCard = mGame->peekCharacter();
+							  client->write(serverName + "Card name: " + topCard.getName() + " Card ID: " + std::to_string(topCard.getID()) + "\n");
+						  }
+						  else if (message == "1"){
 
-					}
-					else if (message == "3"){
+						  }
+						  else if (message == "2"){
 
-					}
-					else if (message == "4"){
+						  }
+						  else if (message == "3"){
 
-					}
-					else if (message == "5"){
+						  }
+						  else if (message == "4"){
 
-					}
-					else if (message == "6"){
+						  }
+						  else{	// All other commands are ignored and the current player is notified
+							  client->write("Hey, you wrote: '");
+							  client->write(command.get_cmd());
+							  client->write("', but I'm not doing anything with it.\n");
+						  }
 
-					}
-					else{
-						client->write("Hey, you wrote: '");
-						client->write(command.get_cmd());
-						client->write("', but I'm not doing anything with it.\n");
-					}
+					  }
+					  else if (GameState::currentGameState == GameState::GameStates::PLAYER_ONE_TURN){
+						  if (message == "0"){
+							  // Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)
+						  }
+						  else if (message == "1"){
+							  // Neem 2 goudstukken
+						  }
+						  else if (message == "2"){
+							  // Neem 2 bouwkaarten en leg er 1 af
+						  }
+						  else if (message == "3"){
+							  // Maak gebruik van de karaktereingenschap van de Magier
+						  }
+						  else{// All other commands are ignored and the current player is notified
+							  client->write("Hey, you wrote: '");
+							  client->write(command.get_cmd());
+							  client->write("', but I'm not doing anything with it.\n");
+						  }
 
+					  }
+					  else if (GameState::currentGameState == GameState::GameStates::PLAYER_TWO_TURN)
+					  {
+						  if (message == "0"){
+							  // Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)
+						  }
+						  else if (message == "1"){
+							  // Neem 2 goudstukken
+						  }
+						  else if (message == "2"){
+							  // Neem 2 bouwkaarten en leg er 1 af
+						  }
+						  else if (message == "3"){
+							  // Maak gebruik van de karaktereingenschap van de Magier
+						  }
+						  else{// All other commands are ignored and the current player is notified
+							  client->write("Hey, you wrote: '");
+							  client->write(command.get_cmd());
+							  client->write("', but I'm not doing anything with it.\n");
+						  }
+					  }
+					  //else if (GameState::currentGameState == GameState::GameStates::WAITING_FOR_PLAYERS_TO_CONNECT)
+					  //{
+
+					  //}
 
 				}
-
-
-
-
 			}
 			catch (const exception& ex) {
 				client->write("Sorry, ");
@@ -217,9 +260,15 @@ void Server::handleIncomingMessage(std::shared_ptr<Socket> client, std::string m
 
 void Server::sendMessageToAllPlayers(std::string message)
 {
-	
-		mGame->mPlayers.at(0)->getPlayerClient()->write(message);
-		mGame->mPlayers.at(1)->getPlayerClient()->write(message);
-	
+
+	mGame->mPlayers.at(0)->getPlayerClient()->write(message);
+	mGame->mPlayers.at(1)->getPlayerClient()->write(message);
+
 }
 
+void Server::notifyPlayersGameHasStarted()
+{
+	thread gameStartedMessagingHandler{ &Server::sendMessageToAllPlayers, "CLEARSCREEN\n" };
+	gameStartedMessagingHandler.detach();
+	mGame->run();
+}

@@ -83,8 +83,9 @@ void MachiavelliClient::listenToMessagesFromServer()
 		{
 			std::string messageFromServer = clientSocket->readline() + "\r\n";
 
-			if (messageFromServer == "> GAMESTARTED\r\n"){
+			if (messageFromServer == "CLEARSCREEN\r\n" || messageFromServer == "> CLEARSCREEN\r\n"){
 				clearScreen();
+				
 			}
 			else
 			{
@@ -149,6 +150,6 @@ void MachiavelliClient::clearScreen()
 	SetConsoleCursorPosition(hStdOut, homeCoords);
 	#pragma endregion
 
-	std::cout << "All players have connected. Game has now started\n";
+	
 }
 

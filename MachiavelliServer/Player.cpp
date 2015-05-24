@@ -7,6 +7,7 @@ Player::Player(Socket *client, string IPaddress)
 {
 	this->client = client;
 	this->IPaddress = IPaddress;
+	gold = 0;
 }
 
 Player::~Player()
@@ -92,6 +93,21 @@ void Player::setPlayerNumber(int number)
 int Player::getPlayerNumber()
 {
 	return playerNumber;
+}
+
+void Player::setCurrentCharacter(std::shared_ptr<CharacterCard> character)
+{
+	currentCharacter = character;
+}
+
+std::shared_ptr<CharacterCard> Player::getCurrentCharacter()
+{
+	return currentCharacter;
+}
+
+int Player::getCurrentAmountOfGold()
+{
+	return gold;
 }
 
 

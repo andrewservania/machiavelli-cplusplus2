@@ -4,7 +4,13 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip> 
+#include "Server.h"
+
 using namespace std;
+
+int playerID = 1000;
+int firstPlayerPositionCompensationValue = 0;
+
 
 Game::Game()
 {
@@ -34,7 +40,17 @@ bool Game::waitForClients()
 
 void Game::run()
 {
+	mPlayers.at(0)->getPlayerClient()->write("All players have connected.\n");
+	mPlayers.at(1)->getPlayerClient()->write("All players have connected.\n");
 
+	Sleep(3000);
+	mPlayers.at(0)->getPlayerClient()->write("CLEARSCREEN\n");
+	mPlayers.at(1)->getPlayerClient()->write("CLEARSCREEN\n");
+	mPlayers.at(0)->getPlayerClient()->write("Please take a peek at the top card in the character deck.\n");
+		
+	mPlayers.at(1)->getPlayerClient()->write("Please wait while the king takes a peek at the top card in the character deck.\n"
+		"The king will also pick 1 card to keep for himself...\n");
+	//sendUpdatedClientDashboard();
 	//dealCharacters();
 
 }
@@ -99,8 +115,6 @@ void Game::playCharacter()
 
 }
 
-int playerID = 1000;
-int firstPlayerPositionCompensationValue = 0;
 void Game::addPlayer(Socket *client, string ip)
 {
 	if (clientNumber < 2){
@@ -118,9 +132,14 @@ void Game::addPlayer(Socket *client, string ip)
 		if (mPlayers.size() == 1){
 
 			mPlayers[clientNumber]->sendMessage("You are Player " + std::to_string(clientNumber + 1) + ". The King!");
+			setPlayerCharacterToKing(clientNumber);
 		}
 		else if (mPlayers.size() == 2){
 			mPlayers[clientNumber + firstPlayerPositionCompensationValue]->sendMessage("You are Player " + std::to_string(clientNumber + 1));
+			std::shared_ptr<CharacterCard> characterCard = std::make_shared<CharacterCard>();
+			characterCard->mName = "-";
+			characterCard->mID = 0;
+			mPlayers[clientNumber]->setCurrentCharacter(characterCard);
 		}
 		clientNumber++;
 
@@ -208,7 +227,6 @@ bool Game::readAndLoadCharacterCardsFromCSVFile(){
 	return isLoadingSuccesful;
 }
 
-/*To remove players that have disconnected at any given point*/
 void Game::removeLastDisconnectedPlayer(shared_ptr<Socket> client)
 {
 	string currentClientIP = client->get_dotted_ip();
@@ -256,4 +274,38 @@ shared_ptr<Player> Game::getPlayer(int ID)
 int Game::getAmountOfConnectedPlayers()
 {
 	return clientNumber;
+}
+
+void Game::sendUpdatedClientDashboard()
+{
+	std::string line1 = "Je bent nu de: " + mPlayers.at(0)->getCurrentCharacter()->getName() +"\n";
+	std::string line2 = "Goud: " + std::to_string(mPlayers.at(0)->getCurrentAmountOfGold())+"\n";
+	std::string emptyLine1 = "\n";
+	std::string line3 = "Gebouwen:\n";
+	std::string line4 = " 1. Geen\n";
+	std::string line5 = " 2. Geen\n";
+	std::string line6 = " 3. Geen\n";
+	std::string emptyLine2 = "\n";
+	std::string line7 = "Handkaarten:\n";
+	std::string line8 = "{GeenKaartNaam},{GeenKleur},{GeenBeschrijving}\n";
+	std::string emptyLine3 = "\n";
+	std::string line9 = "Maak een keuze:\n";
+	std::string line10 = "[0] Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)\n";
+	std::string line11 = "[1] Neem 2 goedstukken\n";
+	std::string line12 = "[2] Neem 2 bouwkaarten en leg er 1 af\n";
+	std::string line13 = "[3] Maak gebruik van de karakter eigenschap van de Magier\n";
+	std::string emptyLine4 = "\n";
+	std::thread clientsHandler{ &Server::sendMessageToAllPlayers, 
+		line1+line2+line3+emptyLine1+line4+line5+line6+emptyLine2+line7+line8+emptyLine3+line9+line10+line11+line12+line13+emptyLine4+"\n" };
+	clientsHandler.detach();
+}
+
+void Game::setPlayerCharacterToKing(int playerNumber)
+{
+	std::shared_ptr<CharacterCard> kingCharacterCard = std::make_shared<CharacterCard>();
+	kingCharacterCard->mName = "Koning";
+	kingCharacterCard->mID = 999;
+	mPlayers.at(playerNumber)->setCurrentCharacter(kingCharacterCard);
+	
+	
 }

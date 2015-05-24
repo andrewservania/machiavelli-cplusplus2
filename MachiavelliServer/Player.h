@@ -19,6 +19,7 @@ private:
 	std::vector<BuildingCard> Table;
 	std::vector<CharacterCard> Characters;
 	int playerNumber;
+	std::shared_ptr<CharacterCard> currentCharacter;
 
 public:
 	Player(Socket *client, string IPaddress);
@@ -42,5 +43,8 @@ public:
 	Socket* getPlayerClient();
 	int getPlayerNumber();
 	void setPlayerNumber(int number);
+	void setCurrentCharacter(std::shared_ptr<CharacterCard> character);
+	std::shared_ptr<CharacterCard>  getCurrentCharacter();
+	int getCurrentAmountOfGold();
 };
 

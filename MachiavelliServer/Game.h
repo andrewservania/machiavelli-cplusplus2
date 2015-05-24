@@ -7,9 +7,16 @@
 
 using namespace std;
 
+namespace GameState{
+	enum class GameStates {WAITING_FOR_PLAYERS_TO_CONNECT,INITIAL_CARD_DEALING, PLAYER_ONE_TURN, PLAYER_TWO_TURN};
+	static GameStates currentGameState;
+
+}
+
 class Game
 {
 private:
+	
 	
 
 	CardStack<BuildingCard> mBuildingCards;
@@ -18,12 +25,13 @@ private:
 	CardStack<CharacterCard> mCharacterCardDiscards;
 
 	int clientNumber;
+	
 
 public:
 	Game();
 	~Game();
 
-	std::vector<shared_ptr<Player > > mPlayers;
+	std::vector<shared_ptr<Player >> mPlayers;
 
 	void initServer();
 	bool waitForClients();
@@ -42,11 +50,13 @@ public:
 	void removeLastDisconnectedPlayer(shared_ptr<Socket> client);
 	shared_ptr<Player> getPlayer(int ID);
 	int getAmountOfConnectedPlayers();
+	void sendUpdatedClientDashboard();
+	void setPlayerCharacterToKing(int playerNumber);
 
 
 	template<class T>
 	bool loadCSV(T card);
-
+	
 };
 
 template<class T>
