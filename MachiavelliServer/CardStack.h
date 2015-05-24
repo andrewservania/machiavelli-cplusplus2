@@ -37,6 +37,7 @@ template <class T>
 void CardStack<T>::removeAt(int index)
 {
 	cards.erase(cards.begin() + index);
+	cards.shrink_to_fit();
 }
 
 template<class T>

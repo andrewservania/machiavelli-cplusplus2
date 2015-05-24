@@ -35,10 +35,6 @@ void Player::addTableCard()
 
 }
 
-void Player::addCharacter()
-{
-
-}
 
 void Player::buyBuilding()
 {
@@ -108,6 +104,16 @@ std::shared_ptr<CharacterCard> Player::getCurrentCharacter()
 int Player::getCurrentAmountOfGold()
 {
 	return gold;
+}
+
+void Player::addBuildingCard(BuildingCard buildingCard)
+{
+	Buildings.push_back(buildingCard);
+}
+
+void Player::addCharacterCard(CharacterCard characterCard)
+{
+	Characters.push_back(characterCard);
 }
 
 

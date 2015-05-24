@@ -8,7 +8,13 @@
 using namespace std;
 
 namespace GameState{
-	enum class GameStates {WAITING_FOR_PLAYERS_TO_CONNECT,INITIAL_CARD_DEALING, PLAYER_ONE_TURN, PLAYER_TWO_TURN};
+	enum class GameStates {
+		KING_PEEKS_AT_TOP_CARD_AND_DISCARDS,
+		PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN, 
+		PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN,
+		WAITING_FOR_PLAYERS_TO_CONNECT,
+		INITIAL_CARD_DEALING, 
+		PLAYER_ONE_TURN, PLAYER_TWO_TURN};
 	static GameStates currentGameState;
 
 }
@@ -21,11 +27,12 @@ private:
 
 	CardStack<BuildingCard> mBuildingCards;
 	CardStack<CharacterCard> mCharacterCards;
+
 	CardStack<BuildingCard> mBuildingCardDiscards;
 	CardStack<CharacterCard> mCharacterCardDiscards;
 
 	int clientNumber;
-	
+	bool topCardDiscarded = false;
 
 public:
 	Game();
@@ -52,8 +59,9 @@ public:
 	int getAmountOfConnectedPlayers();
 	void sendUpdatedClientDashboard();
 	void setPlayerCharacterToKing(int playerNumber);
-
-
+	void discardTopCharacterCard();
+	void showRemainingCharactersCardsInDeck(std::shared_ptr<Socket> currentPlayer);
+	void pickCharacterCardAndDiscard(int cardNumber, std::shared_ptr<Socket> client, int playerNumber);
 	template<class T>
 	bool loadCSV(T card);
 	

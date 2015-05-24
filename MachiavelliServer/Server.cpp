@@ -62,7 +62,7 @@ void Server::listenForClients()
 				cerr << "Server listening again" << '\n';
 				if (mGame->getAmountOfConnectedPlayers() == 2){
 					notifyPlayersGameHasStarted();
-					GameState::currentGameState = GameState::GameStates::INITIAL_CARD_DEALING;
+					GameState::currentGameState = GameState::GameStates::KING_PEEKS_AT_TOP_CARD_AND_DISCARDS;
 					//break;
 				}
 
@@ -136,7 +136,12 @@ void Server::consumeCommand()
 					std::string message = command.get_cmd();
 
 
-					  if (GameState::currentGameState == GameState::GameStates::INITIAL_CARD_DEALING){
+
+
+
+
+
+					  if (GameState::currentGameState == GameState::GameStates::KING_PEEKS_AT_TOP_CARD_AND_DISCARDS){
 						 //then perform these specific commands
 
 						  if (message == "0"){
@@ -144,16 +149,12 @@ void Server::consumeCommand()
 							  client->write(serverName + "Card name: " + topCard.getName() + " Card ID: " + std::to_string(topCard.getID()) + "\n");
 						  }
 						  else if (message == "1"){
-
-						  }
-						  else if (message == "2"){
-
-						  }
-						  else if (message == "3"){
-
-						  }
-						  else if (message == "4"){
-
+							  mGame->discardTopCharacterCard();
+							  client->write("CLEARSCREEN\n");
+							  client->write("Top card discarded\n");
+							  client->write("Now choose one of the remaining character cards:\n");
+							  mGame->showRemainingCharactersCardsInDeck(client);
+							  GameState::currentGameState = GameState::GameStates::PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN;
 						  }
 						  else{	// All other commands are ignored and the current player is notified
 							  client->write("Hey, you wrote: '");
@@ -162,6 +163,89 @@ void Server::consumeCommand()
 						  }
 
 					  }
+
+
+
+
+					  else if (GameState::currentGameState == GameState::GameStates::PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN){
+
+						  if (message == "0"){
+							  mGame->pickCharacterCardAndDiscard(0, client, 0);
+							  GameState::currentGameState = GameState::GameStates::PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN;
+						  }
+						  else if (message == "1"){
+							  mGame->pickCharacterCardAndDiscard(1, client, 0);
+							  GameState::currentGameState = GameState::GameStates::PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN;
+						  }
+						  else if (message == "2"){
+							  mGame->pickCharacterCardAndDiscard(2, client, 0);
+							  GameState::currentGameState = GameState::GameStates::PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN;
+						  }
+						  else if (message == "3"){
+							  mGame->pickCharacterCardAndDiscard(3, client, 0);
+							  GameState::currentGameState = GameState::GameStates::PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN;
+						  }
+						  else if (message == "4"){
+							  mGame->pickCharacterCardAndDiscard(4, client, 0);
+							  GameState::currentGameState = GameState::GameStates::PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN;
+						  }
+						  else if (message == "5"){
+							  mGame->pickCharacterCardAndDiscard(5, client, 0);
+							  GameState::currentGameState = GameState::GameStates::PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN;
+						  }
+						  else{	// All other commands are ignored and the current player is notified
+							  client->write("Hey, you wrote: '");
+							  client->write(command.get_cmd());
+							  client->write("', but I'm not doing anything with it.\n");
+						  }
+					  }
+
+
+					  else if (GameState::currentGameState == GameState::GameStates::PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN){
+
+						  if (message == "0"){
+							  mGame->pickCharacterCardAndDiscard(0, client, 1);
+							  GameState::currentGameState = GameState::GameStates::PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN;
+						  }
+						  else if (message == "1"){
+							  mGame->pickCharacterCardAndDiscard(1, client, 1);
+							  GameState::currentGameState = GameState::GameStates::PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN;
+
+						  }
+						  else if (message == "2"){
+							  mGame->pickCharacterCardAndDiscard(2, client, 1);
+							  GameState::currentGameState = GameState::GameStates::PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN;
+
+						  }
+						  else if (message == "3"){
+							  mGame->pickCharacterCardAndDiscard(3, client, 1);
+							  GameState::currentGameState = GameState::GameStates::PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN;
+
+						  }
+						  else if (message == "4"){
+							  mGame->pickCharacterCardAndDiscard(4, client, 1);
+							  GameState::currentGameState = GameState::GameStates::PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN;
+
+						  }
+						  else if (message == "5"){
+							  mGame->pickCharacterCardAndDiscard(5, client, 1);
+							  GameState::currentGameState = GameState::GameStates::PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN;
+
+						  }
+						  else{	// All other commands are ignored and the current player is notified
+							  client->write("Hey, you wrote: '");
+							  client->write(command.get_cmd());
+							  client->write("', but I'm not doing anything with it.\n");
+						  }
+					  }
+
+
+
+
+
+
+
+
 					  else if (GameState::currentGameState == GameState::GameStates::PLAYER_ONE_TURN){
 						  if (message == "0"){
 							  // Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)
@@ -182,6 +266,13 @@ void Server::consumeCommand()
 						  }
 
 					  }
+
+
+
+
+
+
+
 					  else if (GameState::currentGameState == GameState::GameStates::PLAYER_TWO_TURN)
 					  {
 						  if (message == "0"){
@@ -202,6 +293,12 @@ void Server::consumeCommand()
 							  client->write("', but I'm not doing anything with it.\n");
 						  }
 					  }
+
+
+
+
+
+
 					  //else if (GameState::currentGameState == GameState::GameStates::WAITING_FOR_PLAYERS_TO_CONNECT)
 					  //{
 

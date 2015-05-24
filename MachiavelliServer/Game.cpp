@@ -40,18 +40,7 @@ bool Game::waitForClients()
 
 void Game::run()
 {
-	mPlayers.at(0)->getPlayerClient()->write("All players have connected.\n");
-	mPlayers.at(1)->getPlayerClient()->write("All players have connected.\n");
-
-	Sleep(3000);
-	mPlayers.at(0)->getPlayerClient()->write("CLEARSCREEN\n");
-	mPlayers.at(1)->getPlayerClient()->write("CLEARSCREEN\n");
-	mPlayers.at(0)->getPlayerClient()->write("Please take a peek at the top card in the character deck.\n");
-		
-	mPlayers.at(1)->getPlayerClient()->write("Please wait while the king takes a peek at the top card in the character deck.\n"
-		"The king will also pick 1 card to keep for himself...\n");
-	//sendUpdatedClientDashboard();
-	//dealCharacters();
+	dealCharacters();
 
 }
 
@@ -68,21 +57,38 @@ void Game::initGame()
 
 void Game::dealCharacters()
 {
+
+
+
+	mPlayers.at(0)->getPlayerClient()->write("All players have connected.\n");
+	mPlayers.at(1)->getPlayerClient()->write("All players have connected.\n");
+
+	Sleep(2000);
+	mPlayers.at(0)->getPlayerClient()->write("CLEARSCREEN\n");
+	mPlayers.at(1)->getPlayerClient()->write("CLEARSCREEN\n");
+
+	mPlayers.at(0)->getPlayerClient()->write("Please take a peek at the top card in the character deck.\n");
+	mPlayers.at(0)->getPlayerClient()->write("[0] Take a peek at the top card\n");
+	mPlayers.at(0)->getPlayerClient()->write("[1] Discard the top card. In order to continue...\n");
+
+	mPlayers.at(1)->getPlayerClient()->write("Please wait while the king takes a peek at the top card in the character deck.\n"
+		"The king will also pick 1 card to keep for himself...\n");
+
 	// King gets to see upper characterCard, and gets to pick one characterCard
-	peekCharacter();
-	pickCharacter();
-	//switch Active Player
-	// Other player gets to pick one, and gets to discard one characterCard
-	peekCharacter();
-	discardCharacter();
-	//switch Active Player
-	// King gets to pick one, and gets to discard one characterCard
-	peekCharacter();
-	discardCharacter();
-	//switch Active Player
-	// Other player gets to pick one, and gets to discard one characterCard
-	peekCharacter();
-	discardCharacter();
+	//peekCharacter();
+	//pickCharacter();
+	////switch Active Player
+	//// Other player gets to pick one, and gets to discard one characterCard
+	//peekCharacter();
+	//discardCharacter();
+	////switch Active Player
+	//// King gets to pick one, and gets to discard one characterCard
+	//peekCharacter();
+	//discardCharacter();
+	////switch Active Player
+	//// Other player gets to pick one, and gets to discard one characterCard
+	//peekCharacter();
+	//discardCharacter();
 }
 
 void Game::discardCharacter()
@@ -194,7 +200,7 @@ bool Game::readAndLoadCharacterCardsFromCSVFile(){
 	bool isLoadingSuccesful = false;
 
 	std::string filePath = "..\\Resources\\";
-	std::string fileName = "karakterkaarten.csv";
+	std::string fileName = "karakterkaartenNEW.csv";
 	std::string fullFilePath = filePath + fileName;
 
 
@@ -308,4 +314,29 @@ void Game::setPlayerCharacterToKing(int playerNumber)
 	mPlayers.at(playerNumber)->setCurrentCharacter(kingCharacterCard);
 	
 	
+}
+
+void Game::discardTopCharacterCard()
+{
+	if (topCardDiscarded == false)
+	{
+		mCharacterCardDiscards.add(mCharacterCards.at(0));
+		mCharacterCards.removeAt(0);
+		topCardDiscarded = true;
+	}
+}
+
+void Game::showRemainingCharactersCardsInDeck(std::shared_ptr<Socket> currentPlayer)
+{
+	for (int i = 0; i < mCharacterCards.getCardStackSize(); i++)
+	{
+		currentPlayer->write("[" + std::to_string(i) + "] Card: " + mCharacterCards.at(i).getName() + " Card ID: " + std::to_string(mCharacterCards.at(i).getID()) + "\n");
+	}
+}
+
+void Game::pickCharacterCardAndDiscard(int cardNumber, std::shared_ptr<Socket> client, int playerNumber)
+{
+	mPlayers.at(playerNumber)->addCharacterCard(mCharacterCards.at(cardNumber));
+	mCharacterCards.removeAt(cardNumber);
+	client->write("Card number " + std::to_string(cardNumber) + " selected.\n");
 }

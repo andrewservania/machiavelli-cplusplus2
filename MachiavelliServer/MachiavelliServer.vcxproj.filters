@@ -87,4 +87,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Resources\karakterkaartenNEW.csv">
+      <Filter>Header Files\Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

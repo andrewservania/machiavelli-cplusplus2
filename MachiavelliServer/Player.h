@@ -17,7 +17,10 @@ private:
 	int mPlayerID;
 	std::vector<BuildingCard> Hand;
 	std::vector<BuildingCard> Table;
+
+
 	std::vector<CharacterCard> Characters;
+	std::vector<BuildingCard> Buildings;
 	int playerNumber;
 	std::shared_ptr<CharacterCard> currentCharacter;
 
@@ -27,13 +30,19 @@ public:
 
 	void addGold(int goldToAdd);
 	void removeGold(int goldToRemove);
+
 	void addHandCard();
 	void addTableCard();
-	void addCharacter();
+
+	void addCharacterCard(CharacterCard characterCard);
+	void addBuildingCard(BuildingCard buildingCard);
+
 	void buyBuilding();
 	void removeCharacters(); 
+
 	void removeHandCard();
 	void removeTableCard();
+
 	void clearAll();
 	int getTableSize();
 	void sendMessage(string message);
