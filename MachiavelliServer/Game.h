@@ -47,8 +47,8 @@ public:
 	};
 	GameStates currentGameState;
 
-	std::string playerOneIPaddress = "";
-	std::string playerTwoIPaddress = "";
+	std::string playerOneIdentityNumber = "";
+	std::string playerTwoIdentityNumber = "";
 	int playerOnePortNumber = 0;
 	int playerTwoPortNumber = 999;
 

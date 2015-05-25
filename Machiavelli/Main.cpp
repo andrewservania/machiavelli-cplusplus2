@@ -13,7 +13,13 @@ std::unique_ptr<MachiavelliClient> machiavelliClient;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	machiavelliClient = std::make_unique<MachiavelliClient>();
+	try{
+		machiavelliClient = std::make_unique<MachiavelliClient>();
+	}
+	catch (...)
+	{
+		std::cerr << "Whoa! If you're reading this message then something technical happened that was not supposed to happen. Please restart the machiavelli client.\nThank you!";
+	}
 	return 0;
 }
 

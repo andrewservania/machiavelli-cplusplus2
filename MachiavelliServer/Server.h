@@ -27,7 +27,7 @@ public:
 	void stopServer();
 	void listenForClients();
 	void handleClient(Socket* socket);
-	void handleIncomingMessage(std::shared_ptr<Socket> client, std::string message);
+	void printIncomingMessage(std::shared_ptr<Socket> client, std::string message);
 	void consumeCommand();
 	void sendMessageToClient(Socket* client, std::string message);
 	void pingPlayers();

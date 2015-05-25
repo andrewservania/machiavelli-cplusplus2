@@ -64,8 +64,8 @@ void Server::listenForClients()
 				//The game will start when this if-statement has become true!
 				if (mGame->getAmountOfConnectedPlayers() == 2){
 					notifyPlayersGameHasStarted();
-					mGame->playerOneIPaddress = mGame->connectedPlayers.at(0)->getPlayerClient()->get_dotted_ip();
-					mGame->playerTwoIPaddress = mGame->connectedPlayers.at(1)->getPlayerClient()->get_dotted_ip();
+					mGame->playerOneIdentityNumber = mGame->connectedPlayers.at(0)->getPlayerClient()->get_dotted_ip() + std::to_string(mGame->connectedPlayers.at(0)->getPlayerClient()->get());
+					mGame->playerTwoIdentityNumber = mGame->connectedPlayers.at(1)->getPlayerClient()->get_dotted_ip() + std::to_string(mGame->connectedPlayers.at(1)->getPlayerClient()->get());
 					mGame->currentGameState = Game::KING_PEEKS_AT_TOP_CARD_AND_DISCARDS;
 					//break;
 				}
@@ -108,7 +108,7 @@ void Server::handleClient(Socket* socket)
 				client->write("Bye!\n");
 				break; // out of game loop, will end this thread and close connection
 			}
-			handleIncomingMessage(client, cmd);
+			printIncomingMessage(client, cmd);
 
 			ClientCommand command{ cmd, client };
 			queue.put(command);
@@ -186,23 +186,15 @@ void Server::pingPlayers()
 	
 }
 
-void Server::handleIncomingMessage(std::shared_ptr<Socket> client, std::string message)
+void Server::printIncomingMessage(std::shared_ptr<Socket> client, std::string message)
 {
-	// read first line of request
-	// string cmd = client->readline();
-	cerr << "client (" << client->get() << ") said: " << message << '\n';
-
-
-
-
+	cerr << "client (" << client->get_dotted_ip() + ":" + std::to_string(client->get()) << ") said: " << message << '\n';
 }
 
 void Server::sendMessageToAllPlayers(std::string message)
 {
-
 	mGame->connectedPlayers.at(0)->getPlayerClient()->write(message);
 	mGame->connectedPlayers.at(1)->getPlayerClient()->write(message);
-
 }
 
 void Server::notifyPlayersGameHasStarted()

@@ -311,7 +311,7 @@ void Game::sendUpdatedClientDashboard(int playerNumber)
 
 	for each (BuildingCard var in playerBuildingCards)
 	{
-		std::string buildingCard = var.getName() + " (" + var.getColor() +", " + std::to_string(var.getCost()) +" )" + var.getDescription() + "\n";
+		std::string buildingCard = " -"+var.getName() + " (" + var.getColor() +", " + std::to_string(var.getCost()) +" )" + var.getDescription() + "\n";
 		line8 += buildingCard;
 	} 
 
@@ -365,11 +365,10 @@ void Game::pickCharacterCard(int cardNumber, std::shared_ptr<Socket> client, int
 void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentClient)
 {
 	int commandNumber = std::atoi(command.c_str());	//Change the incoming message to an integer!
-
+	std::string identityNumberOfCurrentClient = currentClient->get_dotted_ip() + std::to_string(currentClient->get());
 	if (currentGameState == KING_PEEKS_AT_TOP_CARD_AND_DISCARDS){
-		std::string ipAddressOfCurrentClient = currentClient->get_dotted_ip();
-		if (ipAddressOfCurrentClient == connectedPlayers.at(0)->getPlayerClient()->get_dotted_ip()){
-			//TODO: Change this if-statement to switch-statement
+		
+		if (identityNumberOfCurrentClient == playerOneIdentityNumber){
 			switch (commandNumber)
 			{
 				case 0:
@@ -405,11 +404,7 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 		}
 		else{
 
-			currentClient->write("Please wait for the king to finish. Thank you!\n");
-
-
-
-
+			currentClient->write(serverName+"Please wait for the king to finish. Thank you!\n");
 		}
 
 
@@ -418,8 +413,7 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 
 
 	else if (currentGameState == PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN){
-		std::string ipAddressOfCurrentClient = currentClient->get_dotted_ip();
-		if (ipAddressOfCurrentClient == connectedPlayers.at(0)->getPlayerClient()->get_dotted_ip()){
+		if (identityNumberOfCurrentClient == playerOneIdentityNumber){
 
 				if (commandNumber >= 0 && commandNumber < mCharacterCards.getCardStackSize()){
 
@@ -476,15 +470,14 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 				}
 		}
 		else{
-			currentClient->write(serverName + "Please wait for the other player to finish. Thank you!\n");
+			currentClient->write(serverName + "Please wait for the king to finish. Thank you!\n");;
 		}
 
 	}
 
 
 	else if (currentGameState == PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN){
-		std::string ipAddressOfCurrentClient = currentClient->get_dotted_ip();
-		if (ipAddressOfCurrentClient == connectedPlayers.at(1)->getPlayerClient()->get_dotted_ip()){
+		if (identityNumberOfCurrentClient == playerTwoIdentityNumber){
 
 
 
@@ -520,8 +513,6 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 								}
 
 							}
-
-					
 					}
 					else{
 						currentClient->write("Please pick a card to discard.\n");
@@ -530,7 +521,7 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 
 		}
 		else{
-			currentClient->write(serverName + "Please wait for the other player to finish. Thank you!\n");
+			currentClient->write(serverName + "Please wait for other player to finish. Thank you!\n");
 		}
 
 	}
@@ -543,47 +534,74 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 
 
 	else if (currentGameState == PLAYER_ONE_TURN){
-		
-		//if (command == "0"){
-		//	// Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)
-		//}
-		//else if (command == "1"){
-		//	// Neem 2 goudstukken
-		//}
-		//else if (command == "2"){
-		//	// Neem 2 bouwkaarten en leg er 1 af
-		//}
-		//else if (command == "3"){
-		//	// Maak gebruik van de karaktereingenschap van de Magier
-		//}
-		//else{// All other commands are ignored and the current player is notified
-		//	currentClient->write("Hey, you wrote: '");
-		//	currentClient->write(command);
-		//	currentClient->write("', but I'm not doing anything with it.\n");
-		//}
+		if (identityNumberOfCurrentClient == playerOneIdentityNumber){
+			switch (commandNumber)
+			{
+				case 0:
+					// Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)
+					currentClient->write("Not implemented yet. :/");
+					break;				
+				case 1:
+					// Neem 2 goudstukken
+					currentClient->write("Not implemented yet. :/");
+					break;			
+				case 2:
+					// Neem 2 bouwkaarten en leg er 1 af
+					currentClient->write("Not implemented yet. :/");
+					break;	
+				case 3:
+					// Maak gebruik van de karaktereingenschap van de Magier
+					currentClient->write("Not implemented yet. :/");
+					break;
+				default:
+						currentClient->write("Hey, you wrote: '");
+						currentClient->write(command);
+						currentClient->write("', but I'm not doing anything with it.\n");
+					break;
+			}
+		}
+		else{
+			currentClient->write(serverName + "Please wait for your turn. Thank you!\n");
+		}
+
 
 	}
 
 	else if (currentGameState == PLAYER_TWO_TURN)
 	{
-		//if (command == "0"){
-		//	// Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)
-		//}
-		//else if (command == "1"){
-		//	// Neem 2 goudstukken
-		//}
-		//else if (command == "2"){
-		//	// Neem 2 bouwkaarten en leg er 1 af
-		//}
-		//else if (command == "3"){
-		//	// Maak gebruik van de karaktereingenschap van de Magier
-		//}
-		//else{// All other commands are ignored and the current player is notified
-		//	currentClient->write("Hey, you wrote: '");
-		//	currentClient->write(command);
-		//	currentClient->write("', but I'm not doing anything with it.\n");
-		//}
+		if (identityNumberOfCurrentClient == playerTwoIdentityNumber){
+			switch (commandNumber)
+			{
+				case 0:
+					// Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)
+					currentClient->write("Not implemented yet. :/");
+					break;
+				case 1:
+					// Neem 2 goudstukken
+					currentClient->write("Not implemented yet. :/");
+					break;
+				case 2:
+					// Neem 2 bouwkaarten en leg er 1 af
+					currentClient->write("Not implemented yet. :/");
+					break;
+				case 3:
+					// Maak gebruik van de karaktereingenschap van de Magier
+					currentClient->write("Not implemented yet. :/");
+					break;
+				default:
+					currentClient->write("Hey, you wrote: '");
+					currentClient->write(command);
+					currentClient->write("', but I'm not doing anything with it.\n");
+					break;
+			}
+		}
+		else
+		{
+			currentClient->write(serverName + "Please wait for your turn. Thank you!\n");
+		}
 	}
+
+	
 
 
 
