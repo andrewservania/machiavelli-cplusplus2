@@ -71,7 +71,7 @@ public:
 	void addPlayer(std::shared_ptr<Socket> client);
 	bool readAndLoadBuildingCardsFromCSVFile();
 	bool readAndLoadCharacterCardsFromCSVFile();
-	void removeLastDisconnectedPlayer(shared_ptr<Socket> client);
+	void removeLastDisconnectedPlayer(std::shared_ptr<Socket> client);
 	shared_ptr<Player> getPlayer(int ID);
 	int getAmountOfConnectedPlayers();
 	void sendUpdatedClientDashboard(int playerNumber);

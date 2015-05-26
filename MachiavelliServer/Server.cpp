@@ -8,7 +8,7 @@
 static Sync_queue<ClientCommand> queue;
 
 static std::unique_ptr<Game> mGame;
-static std::vector<Socket*> connectedClients;
+static std::vector<std::shared_ptr<Socket>> connectedClients;
 
 Server::Server()
 {
@@ -53,10 +53,12 @@ void Server::listenForClients()
 				std::shared_ptr<Socket> clientSmartPointer{client };
 
 					mGame->addPlayer(clientSmartPointer); ///add new connected client to mPlayers in game
+				
+				mGame->addPlayer(clientSmartPointer); ///add new connected client to mPlayers in game
 					printf("A player has connected\n");
 
 				// communicate with client over new socket in separate thread
-				std::thread handler{ &Server::handleClient, this, client };
+					std::thread handler{ &Server::handleClient, this, clientSmartPointer };
 				handler.detach(); // detaching is usually ugly, but in this case the right thing to do
 
 				cerr << "Server listening again" << '\n';
@@ -84,9 +86,9 @@ void Server::listenForClients()
 
 }
 
-void Server::handleClient(Socket* socket)
+void Server::handleClient(std::shared_ptr<Socket> client)
 {
-	std::shared_ptr<Socket> client{ socket };
+	
 	client->write("Welcome to Server 1.0! To quit, type 'quit'.\n");
 	client->write(Server::prompt);
 
@@ -96,12 +98,15 @@ void Server::handleClient(Socket* socket)
 			string cmd = "";
 			try
 			{
+
 				cmd = client->readline();
 			}
 			catch (...)/// To properly deal with clients who suddenly disconnect
 			{
+				
 				cerr << "Client " << client->get_dotted_ip() << " with socket: " << client->get() << " has disconnected\n";
 				mGame->removeLastDisconnectedPlayer(client);
+				client->close();
 				break;
 			}
 
@@ -209,3 +214,4 @@ void Server::sendMessageToPlayer(std::string message, int playerNumber)
 {
 	mGame->connectedPlayers.at(playerNumber)->getPlayerClient()->write(message);
 }
+

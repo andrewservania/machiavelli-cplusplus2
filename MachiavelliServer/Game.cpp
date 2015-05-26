@@ -140,11 +140,8 @@ void Game::addPlayer(std::shared_ptr<Socket> client)
 
 		playerID++;
 		player->setPlayerID(playerID);
-
 		player->setPlayerNumber(clientNumber);
 		connectedPlayers.push_back(player);
-
-
 
 		if (connectedPlayers.size() == 1){
 
@@ -244,7 +241,7 @@ bool Game::readAndLoadCharacterCardsFromCSVFile(){
 	return isLoadingSuccesful;
 }
 
-void Game::removeLastDisconnectedPlayer(shared_ptr<Socket> client)
+void Game::removeLastDisconnectedPlayer(std::shared_ptr<Socket> client)
 {
 	string currentClientIP = client->get_dotted_ip();
 	SOCKET currentClientSocket = client->get();
@@ -311,7 +308,7 @@ void Game::sendUpdatedClientDashboard(int playerNumber)
 
 	for each (BuildingCard var in playerBuildingCards)
 	{
-		std::string buildingCard = " -"+var.getName() + " (" + var.getColor() +", " + std::to_string(var.getCost()) +" )" + var.getDescription() + "\n";
+		std::string buildingCard = " -"+var.getName() + " (" + var.getColor() +", " + std::to_string(var.getCost()) +") " + var.getDescription() + "\n";
 		line8 += buildingCard;
 	} 
 
