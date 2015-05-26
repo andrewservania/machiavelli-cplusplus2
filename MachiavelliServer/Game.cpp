@@ -132,11 +132,11 @@ void Game::playCharacter()
 
 }
 
-void Game::addPlayer(Socket* client, string ip)
+void Game::addPlayer(std::shared_ptr<Socket> client)
 {
 	if (clientNumber < 2){
 
-		auto player = make_shared<Player>(client, ip);
+		auto player = make_shared<Player>(client);
 
 		playerID++;
 		player->setPlayerID(playerID);
@@ -322,8 +322,13 @@ void Game::sendUpdatedClientDashboard(int playerNumber)
 	std::string line12 = "[2] Neem 2 bouwkaarten en leg er 1 af\n";
 	std::string line13 = "[3] Maak gebruik van de karakter eigenschap van de Magier\n";
 	std::string emptyLine4 = "\n";
+	std::string line14 = "[4] Bekijk je kaarten";
+	std::string emptyLine5 = "\n";
 	std::thread clientsHandler{ &Server::sendMessageToPlayer,
-		line1 + line2 + line3 + emptyLine1 + line4 + line5 + line6 + emptyLine2 + line7 + line8 + emptyLine3 + line9 + line10 + line11 + line12 + line13 + emptyLine4 + "\n",playerNumber };
+		line1 + line2 + line3 + emptyLine1 + line4 + line5 + 
+		line6 + emptyLine2 + line7 + line8 + emptyLine3 + 
+		line9 + line10 + line11 + line12 + line13 + emptyLine4 + 
+		line14 + "\n",playerNumber };
 	clientsHandler.detach();
 }
 
@@ -347,7 +352,7 @@ void Game::discardTopCharacterCard()
 	}
 }
 
-void Game::showRemainingCharactersCardsInDeckToClient(Socket* currentPlayer)
+void Game::showRemainingCharactersCardsInDeckToClient(std::shared_ptr<Socket> currentPlayer)
 {
 	for (int i = 0; i < mCharacterCards.getCardStackSize(); i++)
 	{
@@ -385,7 +390,7 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 					Sleep(1000);
 					currentClient->write("CLEARSCREEN\n");
 					currentClient->write("Now choose one of the remaining character cards and discard an other one:\n");
-					showRemainingCharactersCardsInDeckToClient((currentClient).get());
+					showRemainingCharactersCardsInDeckToClient(currentClient);
 					currentGameState = PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN;
 
 					break;
@@ -421,7 +426,7 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 							pickCharacterCard(commandNumber, currentClient, 0);
 							playerOneHasChosenACharacterCard = true;
 							currentClient->write(serverName + "Now pick a card to discard.\n");
-							showRemainingCharactersCardsInDeckToClient((currentClient).get());
+							showRemainingCharactersCardsInDeckToClient(currentClient);
 						}
 						else{
 							if (playerOneHasDiscardedACharacterCard == false)
@@ -459,9 +464,6 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 							}
 
 						}
-						
-
-					
 				}
 				else{
 					currentClient->write(serverName+"Hey, you wrote: '");
@@ -490,7 +492,7 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 								pickCharacterCard(commandNumber, currentClient, 0);
 								playerTwoHasChosenACharacterCard = true;
 								currentClient->write(serverName + "Now pick a card to discard.\n");
-								showRemainingCharactersCardsInDeckToClient((currentClient).get());
+								showRemainingCharactersCardsInDeckToClient(currentClient);
 							}
 							else{
 								if (playerTwoHasDiscardedACharacterCard == false)
@@ -539,7 +541,10 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 			{
 				case 0:
 					// Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)
+					//std::string opponentDetails = connectedPlayers.at(1)->
 					currentClient->write("Not implemented yet. :/");
+					
+
 					break;				
 				case 1:
 					// Neem 2 goudstukken
@@ -551,6 +556,10 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 					break;	
 				case 3:
 					// Maak gebruik van de karaktereingenschap van de Magier
+					currentClient->write("Not implemented yet. :/");
+					break;				
+				case 4:
+					// Bekijk je handkaarten
 					currentClient->write("Not implemented yet. :/");
 					break;
 				default:

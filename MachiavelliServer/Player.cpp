@@ -1,14 +1,19 @@
 #include "stdafx.h"
 #include "Player.h"
 
+Player::Player()
+{
 
+}
 
-Player::Player(Socket* socket, std::string ip)
+Player::Player(std::shared_ptr<Socket> socket)
 {
 	client = socket;
-	IPaddress = ip;
-	gold = 0;
+	IPaddress = socket->get_dotted_ip();
+	gold = 2;
 }
+
+
 
 Player::~Player()
 {
@@ -76,7 +81,7 @@ void Player::setPlayerID(int ID)
 	mPlayerID = ID;
 }
 
-Socket* Player::getPlayerClient()
+std::shared_ptr<Socket> Player::getPlayerClient()
 {
 	return client;
 }
@@ -108,27 +113,27 @@ int Player::getCurrentAmountOfGold()
 
 void Player::addBuildingCard(BuildingCard buildingCard)
 {
-	BuildingsCards.push_back(buildingCard);
+	buildingCardsInHand.push_back(buildingCard);
 }
 
 void Player::addCharacterCard(CharacterCard characterCard)
 {
-	CharacterCards.push_back(characterCard);
+	characterCardsInHand.push_back(characterCard);
 }
 
-Socket* Player::getSocket()
+std::shared_ptr<Socket> Player::getSocket()
 {
 	return client;
 }
 
 std::vector<CharacterCard> Player::getAllCharacterCards()
 {
-	return CharacterCards;
+	return characterCardsInHand;
 }
 
 std::vector<BuildingCard> Player::getAllBuildingCards()
 {
-	return BuildingsCards;
+	return buildingCardsInHand;
 }
 
 

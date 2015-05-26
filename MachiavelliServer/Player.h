@@ -6,26 +6,28 @@
 #include "CharacterCard.h"
 #include "Socket.h"
 #include <memory>
-
+#include "CardStack.h"
 
 class Player
 {
 private:
 	std::string IPaddress;
-	Socket* client;
+	std::shared_ptr<Socket> client;
 	int gold = 0;
 	int mPlayerID;
-	//std::vector<BuildingCard> Hand;
-	//std::vector<BuildingCard> Table;
+	//
 
+int playerNumber;
+	std::vector<CharacterCard> characterCardsInHand;
+	std::vector<BuildingCard> buildingCardsInHand;
 
-	std::vector<CharacterCard> CharacterCards;
-	std::vector<BuildingCard> BuildingsCards;
-	int playerNumber;
+	
 	std::shared_ptr<CharacterCard> currentCharacter;
+	std::vector<BuildingCard> buildingCardsBoughtAndOnTable;
 
 public:
-	Player(Socket* socket, std::string ip);
+	Player();
+	Player(std::shared_ptr<Socket> socket);
 	~Player();
 
 	void addGold(int goldToAdd);
@@ -47,9 +49,9 @@ public:
 	int getTableSize();
 	void sendMessage(std::string message);
 
-	Socket* getSocket();
+	std::shared_ptr<Socket> getSocket();
 	void setPlayerID(int ID);
-	Socket* getPlayerClient();
+	std::shared_ptr<Socket> getPlayerClient();
 	int getPlayerNumber();
 	void setPlayerNumber(int number);
 	void setCurrentCharacter(std::shared_ptr<CharacterCard> character);

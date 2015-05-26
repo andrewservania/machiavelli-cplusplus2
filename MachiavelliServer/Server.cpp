@@ -50,8 +50,9 @@ void Server::listenForClients()
 			Socket* client = nullptr;
 
 			while ((client = server.accept()) != nullptr) {
+				std::shared_ptr<Socket> clientSmartPointer{client };
 
-					mGame->addPlayer(client, client->get_dotted_ip()); ///add new connected client to mPlayers in game
+					mGame->addPlayer(clientSmartPointer); ///add new connected client to mPlayers in game
 					printf("A player has connected\n");
 
 				// communicate with client over new socket in separate thread
