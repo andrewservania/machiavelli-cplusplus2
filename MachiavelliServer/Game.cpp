@@ -541,7 +541,7 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 				{
 						// Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)
 						std::vector<BuildingCard> buildingsBoughtByOpponent = connectedPlayers.at(1)->getBoughtBuildingCards();
-						std::string opponentsBuildings;
+						std::string opponentsBuildings = "\n";
 						if (buildingsBoughtByOpponent.size() == 0)
 						{
 							opponentsBuildings = "0 gebouwen";
@@ -549,7 +549,7 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 						else{
 							for each (BuildingCard buildingCard in buildingsBoughtByOpponent)
 							{
-								opponentsBuildings += ("-"+buildingCard.getName() + "\n" + buildingCard.getColor()+"\n"+std::to_string(buildingCard.getCost())+ "\n" + buildingCard.getDescription());
+								opponentsBuildings += ("-"+buildingCard.getName() + " (" + buildingCard.getColor()+","+std::to_string(buildingCard.getCost())+ " )\n" + buildingCard.getDescription()+"\n");
 							}
 							
 						}
@@ -588,19 +588,19 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 					std::vector <BuildingCard> buildingCardsInHand = connectedPlayers.at(0)->getBuildingCardsInHand();
 					std::vector<CharacterCard> characterCardsInHand = connectedPlayers.at(0)->getCharacterCardsInHand();
 
-					std::string characterCardsDetails = "";
+					std::string characterCardsDetails = "\n";
 					for each (CharacterCard characterCard in characterCardsInHand)
 					{
-						characterCardsDetails += ("-" + characterCard.getName() + "\n" + std::to_string(characterCard.getID()));
+						characterCardsDetails += ("-" + characterCard.getName() + ", ID: " + std::to_string(characterCard.getID())+"\n");
 					}
-					std::string buildingCardsDetails = "";
+					std::string buildingCardsDetails = "\n";
 
 					for each (BuildingCard buildingCard in buildingCardsInHand)
 					{
-						buildingCardsDetails += ("-" + buildingCard.getName() + "\n" + buildingCard.getColor() + "\n" + std::to_string(buildingCard.getCost()) + "\n" + buildingCard.getDescription());
+						buildingCardsDetails += ("-" + buildingCard.getName() + " (" + buildingCard.getColor() + "," + std::to_string(buildingCard.getCost()) + " )\n" + buildingCard.getDescription() + "\n");
 					}
 						// Bekijk je handkaarten
-						currentClient->write("Character Cards:\n"+characterCardsDetails + "\n\nBuilding Cards:" +buildingCardsDetails+"\n");
+						currentClient->write("Character Cards:\n"+characterCardsDetails + "\nBuilding Cards:" +buildingCardsDetails+"\n");
 						break;
 				}
 
