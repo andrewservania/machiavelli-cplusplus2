@@ -15,6 +15,8 @@ private:
 	std::shared_ptr<Socket> client;
 	int gold = 0;
 	int mPlayerID;
+
+	bool playerHasCollectedGoldInCurrentTurn = false;
 	//
 
 int playerNumber;
@@ -59,7 +61,11 @@ public:
 	int getCurrentAmountOfGold();
 
 	std::vector<CharacterCard> getAllCharacterCards();
-	std::vector<BuildingCard> getAllBuildingCards();
+	std::vector<BuildingCard> getBoughtBuildingCards();
+	std::vector<BuildingCard> getBuildingCardsInHand();
+	std::vector<CharacterCard> getCharacterCardsInHand();
+	bool playerHasCollectedGold();
+	void setPlayerGoldCollectionStatus(bool playerhasCollectedGold);
 
 };
 

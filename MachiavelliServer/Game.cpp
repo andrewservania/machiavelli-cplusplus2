@@ -296,7 +296,7 @@ void Game::sendUpdatedClientDashboard(int playerNumber)
 	std::string line2 = "Goud: " + std::to_string(connectedPlayers.at(playerNumber)->getCurrentAmountOfGold()) + "\n";
 	std::string emptyLine1 = "\n";
 
-	std::vector<BuildingCard> playerBuildingCards = connectedPlayers.at(playerNumber)->getAllBuildingCards();
+	std::vector<BuildingCard> playerBuildingCards = connectedPlayers.at(playerNumber)->getBoughtBuildingCards();
 
 	std::string line3 = "Gebouwen:\n";
 	std::string line4 = " 1. Geen\n";
@@ -533,37 +533,85 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 
 
 	else if (currentGameState == PLAYER_ONE_TURN){
-		if (identityNumberOfCurrentClient == playerOneIdentityNumber){
+		if (identityNumberOfCurrentClient == playerOneIdentityNumber)
+		{
 			switch (commandNumber)
 			{
 				case 0:
-					// Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)
-					//std::string opponentDetails = connectedPlayers.at(1)->
-					currentClient->write("Not implemented yet. :/");
-					
-
-					break;				
+				{
+						// Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)
+						std::vector<BuildingCard> buildingsBoughtByOpponent = connectedPlayers.at(1)->getBoughtBuildingCards();
+						std::string opponentsBuildings;
+						if (buildingsBoughtByOpponent.size() == 0)
+						{
+							opponentsBuildings = "0 gebouwen";
+						}
+						else{
+							for each (BuildingCard buildingCard in buildingsBoughtByOpponent)
+							{
+								opponentsBuildings += ("-"+buildingCard.getName() + "\n" + buildingCard.getColor()+"\n"+std::to_string(buildingCard.getCost())+ "\n" + buildingCard.getDescription());
+							}
+							
+						}
+						std::string opponentDetails = "Aantal gebouwen van tegenstander: " +opponentsBuildings + "\nAantal goud van tegenstander: " + std::to_string(connectedPlayers.at(1)->getCurrentAmountOfGold());
+						currentClient->write(opponentDetails+"\n");		
+						break;				
+				}
 				case 1:
-					// Neem 2 goudstukken
-					currentClient->write("Not implemented yet. :/");
-					break;			
+				{
+					if (connectedPlayers.at(0)->playerHasCollectedGold() == false)
+					{
+						connectedPlayers.at(0)->addGold(2);
+						connectedPlayers.at(0)->setPlayerGoldCollectionStatus(true);
+					}
+						// Neem 2 goudstukken
+						currentClient->write("Aantal goud dat ik heb:" + std::to_string(connectedPlayers.at(0)->getCurrentAmountOfGold()) + "\n");
+						break;		
+				}
+	
 				case 2:
-					// Neem 2 bouwkaarten en leg er 1 af
-					currentClient->write("Not implemented yet. :/");
-					break;	
+				{				
+						// Neem 2 bouwkaarten en leg er 1 af
+					currentClient->write("Not implemented yet \n");
+						break;
+				}
+		
 				case 3:
-					// Maak gebruik van de karaktereingenschap van de Magier
-					currentClient->write("Not implemented yet. :/");
-					break;				
+				{
+						// Maak gebruik van de karaktereingenschap van de Magier
+						currentClient->write("Not implemented yet. \n");
+						break;		
+				}
+		
 				case 4:
-					// Bekijk je handkaarten
-					currentClient->write("Not implemented yet. :/");
-					break;
+				{
+					std::vector <BuildingCard> buildingCardsInHand = connectedPlayers.at(0)->getBuildingCardsInHand();
+					std::vector<CharacterCard> characterCardsInHand = connectedPlayers.at(0)->getCharacterCardsInHand();
+
+					std::string characterCardsDetails = "";
+					for each (CharacterCard characterCard in characterCardsInHand)
+					{
+						characterCardsDetails += ("-" + characterCard.getName() + "\n" + std::to_string(characterCard.getID()));
+					}
+					std::string buildingCardsDetails = "";
+
+					for each (BuildingCard buildingCard in buildingCardsInHand)
+					{
+						buildingCardsDetails += ("-" + buildingCard.getName() + "\n" + buildingCard.getColor() + "\n" + std::to_string(buildingCard.getCost()) + "\n" + buildingCard.getDescription());
+					}
+						// Bekijk je handkaarten
+						currentClient->write("Character Cards:\n"+characterCardsDetails + "\n\nBuilding Cards:" +buildingCardsDetails+"\n");
+						break;
+				}
+
 				default:
-						currentClient->write("Hey, you wrote: '");
-						currentClient->write(command);
-						currentClient->write("', but I'm not doing anything with it.\n");
+				{
+					currentClient->write("Hey, you wrote: '");
+					currentClient->write(command);
+					currentClient->write("', but I'm not doing anything with it.\n");
 					break;
+				}
+
 			}
 		}
 		else{
@@ -580,19 +628,19 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 			{
 				case 0:
 					// Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)
-					currentClient->write("Not implemented yet. :/");
+					currentClient->write("Not implemented yet. :/\n");
 					break;
 				case 1:
 					// Neem 2 goudstukken
-					currentClient->write("Not implemented yet. :/");
+					currentClient->write("Not implemented yet. :/\n");
 					break;
 				case 2:
 					// Neem 2 bouwkaarten en leg er 1 af
-					currentClient->write("Not implemented yet. :/");
+					currentClient->write("Not implemented yet. :/\n");
 					break;
 				case 3:
 					// Maak gebruik van de karaktereingenschap van de Magier
-					currentClient->write("Not implemented yet. :/");
+					currentClient->write("Not implemented yet. :/\n");
 					break;
 				default:
 					currentClient->write("Hey, you wrote: '");

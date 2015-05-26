@@ -131,9 +131,29 @@ std::vector<CharacterCard> Player::getAllCharacterCards()
 	return characterCardsInHand;
 }
 
-std::vector<BuildingCard> Player::getAllBuildingCards()
+std::vector<BuildingCard> Player::getBoughtBuildingCards()
+{
+	return buildingCardsBoughtAndOnTable;
+}
+
+std::vector<BuildingCard> Player::getBuildingCardsInHand()
 {
 	return buildingCardsInHand;
+}
+
+std::vector<CharacterCard> Player::getCharacterCardsInHand()
+{
+	return characterCardsInHand;
+}
+
+bool Player::playerHasCollectedGold()
+{
+	return playerHasCollectedGoldInCurrentTurn;
+}
+
+void Player::setPlayerGoldCollectionStatus(bool playerhasCollectedGold)
+{
+	playerHasCollectedGoldInCurrentTurn = playerhasCollectedGold;
 }
 
 

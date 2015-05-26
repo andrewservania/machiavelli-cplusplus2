@@ -54,7 +54,6 @@ void Server::listenForClients()
 
 					mGame->addPlayer(clientSmartPointer); ///add new connected client to mPlayers in game
 				
-				mGame->addPlayer(clientSmartPointer); ///add new connected client to mPlayers in game
 					printf("A player has connected\n");
 
 				// communicate with client over new socket in separate thread
