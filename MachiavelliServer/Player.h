@@ -12,7 +12,7 @@ class Player
 {
 private:
 	std::string IPaddress;
-	Socket* client;
+	std::shared_ptr<Socket> client;
 	int gold = 0;
 	int mPlayerID;
 	//std::vector<BuildingCard> Hand;
@@ -25,7 +25,7 @@ private:
 	std::shared_ptr<CharacterCard> currentCharacter;
 
 public:
-	Player(Socket* socket, std::string ip);
+	Player(std::shared_ptr<Socket> socket, std::string ip);
 	~Player();
 
 	void addGold(int goldToAdd);
@@ -47,9 +47,9 @@ public:
 	int getTableSize();
 	void sendMessage(std::string message);
 
-	Socket* getSocket();
+	std::shared_ptr<Socket> getSocket();
 	void setPlayerID(int ID);
-	Socket* getPlayerClient();
+	std::shared_ptr<Socket> getPlayerClient();
 	int getPlayerNumber();
 	void setPlayerNumber(int number);
 	void setCurrentCharacter(std::shared_ptr<CharacterCard> character);

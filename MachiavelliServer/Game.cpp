@@ -132,19 +132,16 @@ void Game::playCharacter()
 
 }
 
-void Game::addPlayer(Socket* client, string ip)
+void Game::addPlayer(std::shared_ptr<Socket> client)
 {
 	if (clientNumber < 2){
 
-		auto player = make_shared<Player>(client, ip);
+		auto player = make_shared<Player>(client, client->get_dotted_ip());
 
 		playerID++;
 		player->setPlayerID(playerID);
-
 		player->setPlayerNumber(clientNumber);
 		connectedPlayers.push_back(player);
-
-
 
 		if (connectedPlayers.size() == 1){
 
@@ -244,7 +241,7 @@ bool Game::readAndLoadCharacterCardsFromCSVFile(){
 	return isLoadingSuccesful;
 }
 
-void Game::removeLastDisconnectedPlayer(shared_ptr<Socket> client)
+void Game::removeLastDisconnectedPlayer(std::shared_ptr<Socket> client)
 {
 	string currentClientIP = client->get_dotted_ip();
 	SOCKET currentClientSocket = client->get();
@@ -311,7 +308,7 @@ void Game::sendUpdatedClientDashboard(int playerNumber)
 
 	for each (BuildingCard var in playerBuildingCards)
 	{
-		std::string buildingCard = " -"+var.getName() + " (" + var.getColor() +", " + std::to_string(var.getCost()) +" )" + var.getDescription() + "\n";
+		std::string buildingCard = " -"+var.getName() + " (" + var.getColor() +", " + std::to_string(var.getCost()) +") " + var.getDescription() + "\n";
 		line8 += buildingCard;
 	} 
 
@@ -347,7 +344,7 @@ void Game::discardTopCharacterCard()
 	}
 }
 
-void Game::showRemainingCharactersCardsInDeckToClient(Socket* currentPlayer)
+void Game::showRemainingCharactersCardsInDeckToClient(std::shared_ptr<Socket> currentPlayer)
 {
 	for (int i = 0; i < mCharacterCards.getCardStackSize(); i++)
 	{
@@ -385,7 +382,7 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 					Sleep(1000);
 					currentClient->write("CLEARSCREEN\n");
 					currentClient->write("Now choose one of the remaining character cards and discard an other one:\n");
-					showRemainingCharactersCardsInDeckToClient((currentClient).get());
+					showRemainingCharactersCardsInDeckToClient(currentClient);
 					currentGameState = PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN;
 
 					break;
@@ -421,7 +418,7 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 							pickCharacterCard(commandNumber, currentClient, 0);
 							playerOneHasChosenACharacterCard = true;
 							currentClient->write(serverName + "Now pick a card to discard.\n");
-							showRemainingCharactersCardsInDeckToClient((currentClient).get());
+							showRemainingCharactersCardsInDeckToClient(currentClient);
 						}
 						else{
 							if (playerOneHasDiscardedACharacterCard == false)
@@ -490,7 +487,7 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 								pickCharacterCard(commandNumber, currentClient, 0);
 								playerTwoHasChosenACharacterCard = true;
 								currentClient->write(serverName + "Now pick a card to discard.\n");
-								showRemainingCharactersCardsInDeckToClient((currentClient).get());
+								showRemainingCharactersCardsInDeckToClient(currentClient);
 							}
 							else{
 								if (playerTwoHasDiscardedACharacterCard == false)

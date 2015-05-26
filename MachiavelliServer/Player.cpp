@@ -3,7 +3,7 @@
 
 
 
-Player::Player(Socket* socket, std::string ip)
+Player::Player(std::shared_ptr<Socket> socket, std::string ip)
 {
 	client = socket;
 	IPaddress = ip;
@@ -76,7 +76,7 @@ void Player::setPlayerID(int ID)
 	mPlayerID = ID;
 }
 
-Socket* Player::getPlayerClient()
+std::shared_ptr<Socket> Player::getPlayerClient()
 {
 	return client;
 }
@@ -116,7 +116,7 @@ void Player::addCharacterCard(CharacterCard characterCard)
 	CharacterCards.push_back(characterCard);
 }
 
-Socket* Player::getSocket()
+std::shared_ptr<Socket> Player::getSocket()
 {
 	return client;
 }

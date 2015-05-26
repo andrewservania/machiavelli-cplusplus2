@@ -68,16 +68,16 @@ public:
 	void playRound();
 	void countPlayerScores();
 	void playCharacter(); // Do I need this method?
-	void addPlayer(Socket* client, string IPaddress);
+	void addPlayer(std::shared_ptr<Socket> client);
 	bool readAndLoadBuildingCardsFromCSVFile();
 	bool readAndLoadCharacterCardsFromCSVFile();
-	void removeLastDisconnectedPlayer(shared_ptr<Socket> client);
+	void removeLastDisconnectedPlayer(std::shared_ptr<Socket> client);
 	shared_ptr<Player> getPlayer(int ID);
 	int getAmountOfConnectedPlayers();
 	void sendUpdatedClientDashboard(int playerNumber);
 	void setPlayerCharacterToKing(int playerNumber);
 	void discardTopCharacterCard();
-	void showRemainingCharactersCardsInDeckToClient(Socket* currentPlayer);
+	void showRemainingCharactersCardsInDeckToClient(std::shared_ptr<Socket> currentPlayer);
 	void pickCharacterCard(int cardNumber, std::shared_ptr<Socket> client, int playerNumber);
 
 	void consumeCommand(std::string command, std::shared_ptr<Socket> currentClient);

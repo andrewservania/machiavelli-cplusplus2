@@ -26,10 +26,9 @@ public:
 	void runServer();
 	void stopServer();
 	void listenForClients();
-	void handleClient(Socket* socket);
+	void handleClient(std::shared_ptr<Socket> socket);
 	void printIncomingMessage(std::shared_ptr<Socket> client, std::string message);
 	void consumeCommand();
-	void sendMessageToClient(Socket* client, std::string message);
 	void pingPlayers();
 	static void sendMessageToAllPlayers(std::string message);
 	static void sendMessageToPlayer(std::string message, int playerNumber);
