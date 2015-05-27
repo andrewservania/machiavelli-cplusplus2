@@ -7,47 +7,84 @@
 
 using namespace std;
 
+
+
+
+
+
 class Game
 {
 private:
+
 	
 
 	CardStack<BuildingCard> mBuildingCards;
 	CardStack<CharacterCard> mCharacterCards;
-	CardStack<BuildingCard> mBuildingCardDiscards;
-	CardStack<CharacterCard> mCharacterCardDiscards;
 
-
+	CardStack<BuildingCard> discardedBuildingCards;
+	CardStack<CharacterCard> discardedCharacterCards;
 
 	int clientNumber;
+	bool topCardDiscarded = false;
+	std::string serverName = "MACHIAVELLI-SERVER: ";
+
+	bool playerOneHasChosenACharacterCard = false;
+	bool playerOneHasDiscardedACharacterCard = false;
+
+	bool playerTwoHasChosenACharacterCard = false;
+	bool playerTwoHasDiscardedACharacterCard = false;
+
 
 public:
+	enum GameStates {
+		KING_PEEKS_AT_TOP_CARD_AND_DISCARDS,
+		PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN,
+		PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN,
+		WATIING_FOR_PLAYER_TO_FINISH,
+		WAITING_FOR_PLAYERS_TO_CONNECT,
+		INITIAL_CARD_DEALING,
+		PLAYER_ONE_TURN, PLAYER_TWO_TURN
+	};
+	GameStates currentGameState;
+
+	std::string playerOneIdentityNumber = "";
+	std::string playerTwoIdentityNumber = "";
+	int playerOnePortNumber = 0;
+	int playerTwoPortNumber = 999;
+
 	Game();
 	~Game();
 
-	std::vector<shared_ptr<Player > > mPlayers;
+	std::vector<shared_ptr<Player>> connectedPlayers;
 
 	void initServer();
 	bool waitForClients();
 	void run();
 	void initGame();
 	void dealCharacters();
-	void discardCharacter();
-	void showCharacter();
-	void pickCharacter();
+	void discardCharacterCard(int cardNumber);
+	CharacterCard peekCharacter();
+	void pickCharacter(); // Do I need this method?
 	void playRound();
 	void countPlayerScores();
-	void playCharacter();
-	void addPlayer(Socket *client, string IPaddress);
+	void playCharacter(); // Do I need this method?
+	void addPlayer(std::shared_ptr<Socket> client);
 	bool readAndLoadBuildingCardsFromCSVFile();
 	bool readAndLoadCharacterCardsFromCSVFile();
-	void removeLastDisconnectedPlayer(shared_ptr<Socket> client);
+	void removeLastDisconnectedPlayer(std::shared_ptr<Socket> client);
 	shared_ptr<Player> getPlayer(int ID);
+	int getAmountOfConnectedPlayers();
+	void sendUpdatedClientDashboard(int playerNumber);
+	void setPlayerCharacterToKing(int playerNumber);
+	void discardTopCharacterCard();
+	void showRemainingCharactersCardsInDeckToClient(std::shared_ptr<Socket> currentPlayer);
+	void pickCharacterCard(int cardNumber, std::shared_ptr<Socket> client, int playerNumber);
 
+	void consumeCommand(std::string command, std::shared_ptr<Socket> currentClient);
 
 	template<class T>
 	bool loadCSV(T card);
-
+	
 };
 
 template<class T>

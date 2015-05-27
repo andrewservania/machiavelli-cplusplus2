@@ -7,9 +7,13 @@
 
 static Sync_queue<ClientCommand> queue;
 
+static std::unique_ptr<Game> mGame;
+static std::vector<std::shared_ptr<Socket>> connectedClients;
+
 Server::Server()
 {
 	mGame = make_unique<Game>();
+	
 	// create a server socket
 }
 
@@ -46,26 +50,44 @@ void Server::listenForClients()
 			Socket* client = nullptr;
 
 			while ((client = server.accept()) != nullptr) {
+				std::shared_ptr<Socket> clientSmartPointer{client };
 
-					mGame->addPlayer(client, client->get_dotted_ip()); ///add new connected client to mPlayers in game
+					mGame->addPlayer(clientSmartPointer); ///add new connected client to mPlayers in game
+				
 					printf("A player has connected\n");
 
 				// communicate with client over new socket in separate thread
-				thread handler{ &Server::handleClient, this, client };
+					std::thread handler{ &Server::handleClient, this, clientSmartPointer };
 				handler.detach(); // detaching is usually ugly, but in this case the right thing to do
+
 				cerr << "Server listening again" << '\n';
+
+
+				//The game will start when this if-statement has become true!
+				if (mGame->getAmountOfConnectedPlayers() == 2){
+					notifyPlayersGameHasStarted();
+					mGame->playerOneIdentityNumber = mGame->connectedPlayers.at(0)->getPlayerClient()->get_dotted_ip() + std::to_string(mGame->connectedPlayers.at(0)->getPlayerClient()->get());
+					mGame->playerTwoIdentityNumber = mGame->connectedPlayers.at(1)->getPlayerClient()->get_dotted_ip() + std::to_string(mGame->connectedPlayers.at(1)->getPlayerClient()->get());
+					mGame->currentGameState = Game::KING_PEEKS_AT_TOP_CARD_AND_DISCARDS;
+					//break;
+				}
+
+
+
+
 			}
 		}
 		catch (const exception& ex) {
 			cerr << ex.what() << ", resuming..." << '\n';
 		}
+
 	}
 
 }
 
-void Server::handleClient(Socket* socket)
+void Server::handleClient(std::shared_ptr<Socket> client)
 {
-	shared_ptr<Socket> client{ socket };
+	
 	client->write("Welcome to Server 1.0! To quit, type 'quit'.\n");
 	client->write(Server::prompt);
 
@@ -75,23 +97,23 @@ void Server::handleClient(Socket* socket)
 			string cmd = "";
 			try
 			{
+
 				cmd = client->readline();
 			}
 			catch (...)/// To properly deal with clients who suddenly disconnect
 			{
+				
 				cerr << "Client " << client->get_dotted_ip() << " with socket: " << client->get() << " has disconnected\n";
 				mGame->removeLastDisconnectedPlayer(client);
+				client->close();
 				break;
 			}
-
-			// read first line of request
-			// string cmd = client->readline();
-			cerr << "client (" << client->get() << ") said: " << cmd << '\n';
 
 			if (cmd == "quit") {
 				client->write("Bye!\n");
 				break; // out of game loop, will end this thread and close connection
 			}
+			printIncomingMessage(client, cmd);
 
 			ClientCommand command{ cmd, client };
 			queue.put(command);
@@ -113,13 +135,23 @@ void Server::consumeCommand()
 	while (true) {
 		ClientCommand command;
 		queue.get(command); // will block here unless there still are command objects in the queue
-		shared_ptr<Socket> client{ command.get_client() };
+		std::shared_ptr<Socket> client{ command.get_client() };
 		if (client) {
 			try {
 				// TODO handle command here
-				client->write("Hey, you wrote: '");
-				client->write(command.get_cmd());
-				client->write("', but I'm not doing anything with it.\n");
+				if (mGame->getAmountOfConnectedPlayers() < 2){
+
+					client->write("MACHIAVELLI-SERVER: Please wait for the other player to connect first!\nThank you!\n");
+
+				}
+				else{
+					std::string message = command.get_cmd();
+
+
+
+					mGame->consumeCommand(message, client);
+
+				}
 			}
 			catch (const exception& ex) {
 				client->write("Sorry, ");
@@ -140,11 +172,11 @@ void Server::consumeCommand()
 void Server::pingPlayers()
 {
 	while (true){
-		if (!mGame->mPlayers.empty()){
+		if (!mGame->connectedPlayers.empty()){
 			//	throw std::logic_error("The method or operation is not implemented.");
-			mGame->mPlayers.size();
+			mGame->connectedPlayers.size();
 			
-			for (size_t i = 0; i < mGame->mPlayers.size(); i++){
+			for (size_t i = 0; i < mGame->connectedPlayers.size(); i++){
 				std::this_thread::sleep_for((std::chrono::seconds(1)));
 				mGame->getPlayer(i).get()->sendMessage("Ping Message: Hi! Welcome to Machiavelli!");
 			}
@@ -157,5 +189,28 @@ void Server::pingPlayers()
 	}
 
 	
+}
+
+void Server::printIncomingMessage(std::shared_ptr<Socket> client, std::string message)
+{
+	cerr << "client (" << client->get_dotted_ip() + ":" + std::to_string(client->get()) << ") said: " << message << '\n';
+}
+
+void Server::sendMessageToAllPlayers(std::string message)
+{
+	mGame->connectedPlayers.at(0)->getPlayerClient()->write(message);
+	mGame->connectedPlayers.at(1)->getPlayerClient()->write(message);
+}
+
+void Server::notifyPlayersGameHasStarted()
+{
+	thread gameStartedMessagingHandler{ &Server::sendMessageToAllPlayers, "CLEARSCREEN\n" };
+	gameStartedMessagingHandler.detach();
+	mGame->run();
+}
+
+void Server::sendMessageToPlayer(std::string message, int playerNumber)
+{
+	mGame->connectedPlayers.at(playerNumber)->getPlayerClient()->write(message);
 }
 

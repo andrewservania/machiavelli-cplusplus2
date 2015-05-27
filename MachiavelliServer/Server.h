@@ -10,15 +10,14 @@
 #include "Sync_queue.h"
 #include "ClientCommand.h"
 
-using namespace std;
+
 
 class Server
 {
 private:
 	const int tcp_port{ 1080 };
-	const string prompt{ "> " };
-	unique_ptr<Game> mGame;
-	std::vector<Socket*> connectedClients;
+	const std::string prompt ="> ";
+	int command = -1;
 
 public:
 	Server();
@@ -27,9 +26,12 @@ public:
 	void runServer();
 	void stopServer();
 	void listenForClients();
-	void handleClient(Socket* socket);
+	void handleClient(std::shared_ptr<Socket> socket);
+	void printIncomingMessage(std::shared_ptr<Socket> client, std::string message);
 	void consumeCommand();
-	void sendMessageToClient(Socket* client, string message);
 	void pingPlayers();
+	static void sendMessageToAllPlayers(std::string message);
+	static void sendMessageToPlayer(std::string message, int playerNumber);
+	void notifyPlayersGameHasStarted();
 };
 

@@ -36,12 +36,12 @@
     <ClInclude Include="throw.h">
       <Filter>Source Files\SocketExample</Filter>
     </ClInclude>
+    <ClInclude Include="MachiavelliClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MachiavelliClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Socket.cpp">
@@ -49,6 +49,12 @@
     </ClCompile>
     <ClCompile Include="throw.cpp">
       <Filter>Source Files\SocketExample</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MachiavelliClient.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

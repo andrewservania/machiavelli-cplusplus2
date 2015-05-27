@@ -5,39 +5,67 @@
 #include "BuildingCard.h"
 #include "CharacterCard.h"
 #include "Socket.h"
-
-using namespace std;
+#include <memory>
+#include "CardStack.h"
 
 class Player
 {
 private:
 	std::string IPaddress;
-	Socket *client;
+	std::shared_ptr<Socket> client;
 	int gold = 0;
 	int mPlayerID;
-	std::vector<BuildingCard> Hand;
-	std::vector<BuildingCard> Table;
-	std::vector<CharacterCard> Characters;
+
+	bool playerHasCollectedGoldInCurrentTurn = false;
+	//
+
+int playerNumber;
+	std::vector<CharacterCard> characterCardsInHand;
+	std::vector<BuildingCard> buildingCardsInHand;
+
+	
+	std::shared_ptr<CharacterCard> currentCharacter;
+	std::vector<BuildingCard> buildingCardsBoughtAndOnTable;
 
 public:
-	Player(Socket *client, string IPaddress);
+	Player();
+	Player(std::shared_ptr<Socket> socket);
 	~Player();
 
 	void addGold(int goldToAdd);
 	void removeGold(int goldToRemove);
+
 	void addHandCard();
 	void addTableCard();
-	void addCharacter();
+
+	void addCharacterCard(CharacterCard characterCard);
+	void addBuildingCard(BuildingCard buildingCard);
+
 	void buyBuilding();
 	void removeCharacters(); 
+
 	void removeHandCard();
 	void removeTableCard();
+
 	void clearAll();
 	int getTableSize();
-	void sendMessage(string message);
+	void sendMessage(std::string message);
 
-	Socket* getSocket();
+	std::shared_ptr<Socket> getSocket();
 	void setPlayerID(int ID);
-	Socket* getPlayerClient();
+	std::shared_ptr<Socket> getPlayerClient();
+	int getPlayerNumber();
+	void setPlayerNumber(int number);
+	void setCurrentCharacter(std::shared_ptr<CharacterCard> character);
+	std::shared_ptr<CharacterCard>  getCurrentCharacter();
+	int getCurrentAmountOfGold();
+
+	std::vector<CharacterCard> getAllCharacterCards();
+	std::vector<BuildingCard> getBoughtBuildingCards();
+	std::vector<BuildingCard> getBuildingCardsInHand();
+	std::vector<CharacterCard> getCharacterCardsInHand();
+	bool playerHasCollectedGold();
+	void setPlayerGoldCollectionStatus(bool playerhasCollectedGold);
+
 };
 
