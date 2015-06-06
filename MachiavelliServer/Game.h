@@ -36,27 +36,26 @@ private:
 
 
 public:
-	enum GameStates {
+	  enum GameStates {
+		NOT_SET_YET,
 		KING_PEEKS_AT_TOP_CARD_AND_DISCARDS,
 		PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN,
 		PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN,
 		WATIING_FOR_PLAYER_TO_FINISH,
 		WAITING_FOR_PLAYERS_TO_CONNECT,
 		INITIAL_CARD_DEALING,
-		PLAYER_ONE_TURN, PLAYER_TWO_TURN
+		PLAYER_ONE_TURN, PLAYER_TWO_TURN,
+		KING_GOES_THROUGH_ALL_CHARACTER_CARDS
 	};
-	GameStates currentGameState;
-
+	static GameStates currentGameState;
 	std::string playerOneIdentityNumber = "";
 	std::string playerTwoIdentityNumber = "";
 	int playerOnePortNumber = 0;
 	int playerTwoPortNumber = 999;
+	std::vector<shared_ptr<Player>> connectedPlayers;
 
 	Game();
 	~Game();
-
-	std::vector<shared_ptr<Player>> connectedPlayers;
-
 	void initServer();
 	bool waitForClients();
 	void run();
@@ -79,12 +78,10 @@ public:
 	void discardTopCharacterCard();
 	void showRemainingCharactersCardsInDeckToClient(std::shared_ptr<Socket> currentPlayer);
 	void pickCharacterCard(int cardNumber, std::shared_ptr<Socket> client, int playerNumber);
-
 	void consumeCommand(std::string command, std::shared_ptr<Socket> currentClient);
-
 	template<class T>
 	bool loadCSV(T card);
-	
+	static void broadCastEverySecond(std::string message);
 };
 
 template<class T>

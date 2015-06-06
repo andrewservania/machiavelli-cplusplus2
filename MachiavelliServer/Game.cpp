@@ -11,6 +11,7 @@ using namespace std;
 int playerID = 1000;
 int firstPlayerPositionCompensationValue = 0;
 
+Game::GameStates Game::currentGameState = NOT_SET_YET;
 
 Game::Game()
 {
@@ -327,6 +328,7 @@ void Game::sendUpdatedClientDashboard(int playerNumber)
 		line9 + line10 + line11 + line12 + line13 + emptyLine4 + 
 		line14 + "\n",playerNumber };
 	clientsHandler.detach();
+
 }
 
 void Game::setPlayerCharacterToKing(int playerNumber)
@@ -368,6 +370,9 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 {
 	int commandNumber = std::atoi(command.c_str());	//Change the incoming message to an integer!
 	std::string identityNumberOfCurrentClient = currentClient->get_dotted_ip() + std::to_string(currentClient->get());
+
+#pragma  region HANDLE STATE: KING_PEEKS_AT_TOP_CARD_AND_DISCARDS
+
 	if (currentGameState == KING_PEEKS_AT_TOP_CARD_AND_DISCARDS){
 		
 		if (identityNumberOfCurrentClient == playerOneIdentityNumber){
@@ -411,9 +416,9 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 
 
 	}
+#pragma endregion
 
-
-
+#pragma region HANDLE STATE: PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN
 	else if (currentGameState == PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN){
 		if (identityNumberOfCurrentClient == playerOneIdentityNumber){
 
@@ -445,6 +450,9 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 									initGame();
 									sendUpdatedClientDashboard(0);
 									sendUpdatedClientDashboard(1);
+
+									thread broadcastHandler{ &Game::broadCastEverySecond, " King will starting going through character cards in " };
+									broadcastHandler.detach();
 									// Start the first Machiavelli game turn! Finally!
 									
 								}
@@ -473,8 +481,9 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 		}
 
 	}
+#pragma endregion
 
-
+#pragma region HANDLE STATE: PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN
 	else if (currentGameState == PLAYER_TWO_CHARACTER_CARD_SELECTION_TURN){
 		if (identityNumberOfCurrentClient == playerTwoIdentityNumber){
 
@@ -524,13 +533,9 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 		}
 
 	}
+#pragma endregion
 
-
-
-
-
-
-
+#pragma region HANDLE STATE: PLAYER_ONE_TURN
 
 	else if (currentGameState == PLAYER_ONE_TURN){
 		if (identityNumberOfCurrentClient == playerOneIdentityNumber)
@@ -617,10 +622,49 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 		else{
 			currentClient->write(serverName + "Please wait for your turn. Thank you!\n");
 		}
-
-
 	}
+#pragma endregion
 
+
+
+
+#pragma region HANDLE STATE: KING_GOES_THROUGH_ALL_CHARACTER_CARDS
+	else if (currentGameState == KING_GOES_THROUGH_ALL_CHARACTER_CARDS)
+	{
+		if (identityNumberOfCurrentClient == playerTwoIdentityNumber){
+			switch (commandNumber)
+			{
+			case 0:
+				// Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)
+				currentClient->write("Not implemented yet. :/\n");
+				break;
+			case 1:
+				// Neem 2 goudstukken
+				currentClient->write("Not implemented yet. :/\n");
+				break;
+			case 2:
+				// Neem 2 bouwkaarten en leg er 1 af
+				currentClient->write("Not implemented yet. :/\n");
+				break;
+			case 3:
+				// Maak gebruik van de karaktereingenschap van de Magier
+				currentClient->write("Not implemented yet. :/\n");
+				break;
+			default:
+				currentClient->write("Hey, you wrote: '");
+				currentClient->write(command);
+				currentClient->write("', but I'm not doing anything with it.\n");
+				break;
+			}
+		}
+		else
+		{
+			currentClient->write(serverName + "Please wait for your turn. Thank you!\n");
+		}
+	}
+#pragma endregion	
+
+#pragma region HANDLE STATE: <FILL IN> NEW STATE
 	else if (currentGameState == PLAYER_TWO_TURN)
 	{
 		if (identityNumberOfCurrentClient == playerTwoIdentityNumber){
@@ -654,9 +698,32 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 			currentClient->write(serverName + "Please wait for your turn. Thank you!\n");
 		}
 	}
-
-	
+#pragma endregion	
 
 
 
 }
+
+void Game::broadCastEverySecond(std::string message)
+{
+	for (int i = 30; i >= 0; i--)
+	{
+		Sleep(1000);
+		if (i == 30){
+			thread broadcastHandler1{ &Server::sendMessageToAllPlayers, message + std::to_string(i) + " seconds \n" };
+			broadcastHandler1.detach();
+		}
+		else if (i < 6 && i > 0){
+			thread broadcastHandler2{ &Server::sendMessageToAllPlayers, message + std::to_string(i) + " seconds \n" };
+			broadcastHandler2.detach();
+		}
+		else if (i == 0){
+			thread broadcastHandler3{ &Server::sendMessageToAllPlayers, "CLEARSCREEN\n" };
+			broadcastHandler3.detach();
+		
+			currentGameState = KING_GOES_THROUGH_ALL_CHARACTER_CARDS;
+		}
+
+	}
+}
+

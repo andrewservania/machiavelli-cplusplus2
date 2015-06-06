@@ -33,5 +33,6 @@ public:
 	static void sendMessageToAllPlayers(std::string message);
 	static void sendMessageToPlayer(std::string message, int playerNumber);
 	void notifyPlayersGameHasStarted();
+	
 };
 
