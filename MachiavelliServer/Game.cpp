@@ -509,7 +509,7 @@ void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 
 
 							if (playerTwoHasChosenACharacterCard == false){
-								pickCharacterCard(commandNumber, currentClient, 0);
+								pickCharacterCard(commandNumber, currentClient, 1);
 								playerTwoHasChosenACharacterCard = true;
 								currentClient->write(serverName + "Now pick a card to discard.\n");
 								showRemainingCharactersCardsInDeckToClient(currentClient);
@@ -754,27 +754,36 @@ string Game::isPlayerTheAnnouncedCharacter(CharacterCard announcedCharacter)
 
 void Game::StartAnnouncingCharacterCards()
 {
-	broadCastMessage(characterCardsInOrder.at(0));
+	broadCastMessage(characterCardsInOrder.at(Server::mGame->announcedCharacterCardCounter));
 	Sleep(1000);
 	broadCastMessage("Reveal yourself!");
 
 	CharacterCard announcedCharacterCard;
 	announcedCharacterCard.mName = characterCardsInOrder.at(Server::mGame->announcedCharacterCardCounter);
-
+	Server::mGame->announcedCharacterCardCounter++;
 	string result = Server::mGame->isPlayerTheAnnouncedCharacter(announcedCharacterCard);
 	Sleep(1000);
 	if (result == "PLAYER1")
 	{
 		broadCastMessage("Player one has :" + announcedCharacterCard.mName + " !");
+		Sleep(1000);
 	}
 	else if (result == "PLAYER2")
 	{
 		broadCastMessage("Player one has :" + announcedCharacterCard.mName + " !");
+		Sleep(1000);
 	}
 	else if (result == "NONE")
 	{
-		broadCastMessage("There are no more players with character cards. Time to shuffle cards and start a new round!");
+		broadCastMessage("King: There are no more players with character the announced character card! I shall announce the next one..");
+		Sleep(1000);
+		if (Server::mGame->announcedCharacterCardCounter <=7)
+		{
+			StartAnnouncingCharacterCards();
+		}
+		
 	}
+	
 }
 
 //Method responsible for notifying players that the King will start announcing character cards soon.
