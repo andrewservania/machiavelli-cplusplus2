@@ -19,6 +19,7 @@ vector<string> Game::characterCardsInOrder;
 Game::Game()
 {
 	clientNumber = 0;
+	playerOneHasPickedTwoBuildingCards = false;
 	initServer();
 }
 
@@ -380,6 +381,55 @@ void Game::pickCharacterCard(int cardNumber, shared_ptr<Socket> client, int play
 	client->write("Card number " + to_string(cardNumber) + " selected.\n");
 }
 
+// method that will be called when a player wants two building cards.
+void Game::givePlayer_TwoBuildingCards(int currentClientNumber, shared_ptr<Socket> currentClient)
+{
+	switch (currentClientNumber)
+	{
+	case 0: 
+		if (!playerOneHasPickedTwoBuildingCards)
+		{
+			//1. Give the player building cards from the top
+			connectedPlayers.at(currentClientNumber)->addBuildingCard(mBuildingCards.at(0));
+			connectedPlayers.at(currentClientNumber)->addBuildingCard(mBuildingCards.at(1));
+			string message = "You now have the following building cards: \n + " + mBuildingCards.at(0).mName + "\n + " + mBuildingCards.at(1).mName;
+
+			//2. Now remove the building cards from the building card stack
+			mBuildingCards.removeAt(0);
+			mBuildingCards.removeAt(1);
+
+			currentClient->write(message + "\n"); // print the new building cards to the player
+
+			playerOneHasPickedTwoBuildingCards = true;
+			
+		}
+		break;
+	case 1:
+
+		if (!playerTwoHasPickedTwoBuildingCards)
+		{
+			//1. Give the player building cards from the top
+			connectedPlayers.at(currentClientNumber)->addBuildingCard(mBuildingCards.at(0));
+			connectedPlayers.at(currentClientNumber)->addBuildingCard(mBuildingCards.at(1));
+			string message = "You now have the following building cards: \n + " + mBuildingCards.at(0).mName + "\n + " + mBuildingCards.at(1).mName;
+
+			//2. Now remove the building cards from the building card stack
+			mBuildingCards.removeAt(0);
+			mBuildingCards.removeAt(1);
+
+			currentClient->write(message + "\n"); // print the new building cards to the player
+
+			playerTwoHasPickedTwoBuildingCards = true;
+
+		}
+
+		break;
+	}
+
+
+}
+
+
 void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 {
 	int commandNumber = atoi(command.c_str());	//Change the incoming message to an integer!
@@ -431,6 +481,8 @@ void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 
 	}
 #pragma endregion
+
+
 
 #pragma region HANDLE STATE: PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN
 	else if (currentGameState == PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN){
@@ -549,16 +601,17 @@ void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 	}
 #pragma endregion
 
+
+
 #pragma region HANDLE STATE: PLAYER_ONE_TURN
 
 	else if (currentGameState == PLAYER_ONE_TURN){
-		if (identityNumberOfCurrentClient == playerOneIdentityNumber)
+		if (identityNumberOfCurrentClient == playerOneIdentityNumber) // To distinguish between connected client number one and connected client number two
 		{
 			switch (commandNumber)
 			{
-				case 0:
+				case 0: // Command 0: Bekijk het goud en de  gebouwen van de tegenstander (en maak denn de keuze)
 				{
-						// Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)
 						vector<BuildingCard> buildingsBoughtByOpponent = connectedPlayers.at(1)->getBoughtBuildingCards();
 						string opponentsBuildings = "\n";
 						if (buildingsBoughtByOpponent.size() == 0)
@@ -576,7 +629,7 @@ void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 						currentClient->write(opponentDetails+"\n");		
 						break;				
 				}
-				case 1:
+				case 1: // Command 1: Neem 2 goed stukken
 				{
 					if (connectedPlayers.at(0)->playerHasCollectedGold() == false)
 					{
@@ -588,21 +641,22 @@ void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 						break;		
 				}
 	
-				case 2:
+				case 2: // Command 2: Neem 2 bouwkaarten en leg er 1 af
 				{				
-						// Neem 2 bouwkaarten en leg er 1 af
-					currentClient->write("Not implemented yet \n");
+					givePlayer_TwoBuildingCards(0, currentClient);
+
+					
 						break;
 				}
 		
-				case 3:
+				case 3:// Command 3: Maak gebruik van de karaktereingenschap van de Magier
 				{
-						// Maak gebruik van de karaktereingenschap van de Magier
+						
 						currentClient->write("Not implemented yet. \n");
 						break;		
 				}
 		
-				case 4:
+				case 4: // Command 4: The player can use this command to take a look at his/her card
 				{
 					vector <BuildingCard> buildingCardsInHand = connectedPlayers.at(0)->getBuildingCardsInHand();
 					vector<CharacterCard> characterCardsInHand = connectedPlayers.at(0)->getCharacterCardsInHand();
@@ -642,7 +696,7 @@ void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 
 
 
-#pragma region HANDLE STATE: KING_GOES_THROUGH_ALL_CHARACTER_CARDS
+#pragma region DEPRECATED: HANDLE STATE: KING_GOES_THROUGH_ALL_CHARACTER_CARDS
 	else if (currentGameState == KING_GOES_THROUGH_ALL_CHARACTER_CARDS)
 	{
 		if (identityNumberOfCurrentClient == playerTwoIdentityNumber){
@@ -766,12 +820,20 @@ void Game::StartAnnouncingCharacterCards()
 	if (result == "PLAYER1")
 	{
 		broadCastMessage("Player one has :" + announcedCharacterCard.mName + " !");
+		currentGameState = PLAYER_ONE_TURN;
+		Server::mGame->sendUpdatedClientDashboard(0);
+		Server::mGame->sendUpdatedClientDashboard(1);
 		Sleep(1000);
+		
 	}
 	else if (result == "PLAYER2")
 	{
 		broadCastMessage("Player one has :" + announcedCharacterCard.mName + " !");
+		currentGameState = PLAYER_TWO_TURN;
+		Server::mGame->sendUpdatedClientDashboard(0);
+		Server::mGame->sendUpdatedClientDashboard(1);
 		Sleep(1000);
+		
 	}
 	else if (result == "NONE")
 	{
@@ -784,6 +846,14 @@ void Game::StartAnnouncingCharacterCards()
 		
 	}
 	
+}
+
+// Method responsible for resetting all round-specific parameters such as, whether players have collected gold coins already or not and
+// whether players have already picked two building cards or not and discard one of the cards.
+void Game::resetRound()
+{
+	connectedPlayers.at(0)->setPlayerGoldCollectionStatus(false);
+	connectedPlayers.at(1)->setPlayerGoldCollectionStatus(false);
 }
 
 //Method responsible for notifying players that the King will start announcing character cards soon.
@@ -808,7 +878,7 @@ void Game::broadCastEverySecond(string message)
 			currentGameState = KING_GOES_THROUGH_ALL_CHARACTER_CARDS;
 			StartAnnouncingCharacterCards();
 		}
-
+		
 	}
 }
 

@@ -34,7 +34,6 @@ private:
 	bool playerTwoHasChosenACharacterCard = false;
 	bool playerTwoHasDiscardedACharacterCard = false;
 
-
 public:
 	  enum GameStates {
 		NOT_SET_YET,
@@ -58,6 +57,8 @@ public:
 	int announcedCharacterCardCounter = 0;
 	//static Game instance;
 
+	bool playerOneHasPickedTwoBuildingCards;
+	bool playerTwoHasPickedTwoBuildingCards;
 	Game();
 	~Game();
 	void initServer();
@@ -82,10 +83,13 @@ public:
 	void discardTopCharacterCard();
 	void showRemainingCharactersCardsInDeckToClient(shared_ptr<Socket> currentPlayer);
 	void pickCharacterCard(int cardNumber, shared_ptr<Socket> client, int playerNumber);
+	void givePlayer_TwoBuildingCards(int currentClientNumber, shared_ptr<Socket> currentClient);
+
 	void consumeCommand(string command, shared_ptr<Socket> currentClient);
 
 	string isPlayerTheAnnouncedCharacter(CharacterCard announcedCharacter);
 	void static StartAnnouncingCharacterCards();
+	void resetRound();
 
 	template<class T>
 	bool loadCSV(T card);
