@@ -12,6 +12,9 @@ int playerID = 1000;
 int firstPlayerPositionCompensationValue = 0;
 
 Game::GameStates Game::currentGameState = NOT_SET_YET;
+vector<string> Game::characterCardsInOrder;
+
+//Game Game::instance;
 
 Game::Game()
 {
@@ -27,6 +30,15 @@ void Game::initServer()
 {
 	readAndLoadBuildingCardsFromCSVFile();
 	readAndLoadCharacterCardsFromCSVFile();
+
+	characterCardsInOrder.push_back("Moordenaar");
+	characterCardsInOrder.push_back("Dief");
+	characterCardsInOrder.push_back("Magiër");
+	characterCardsInOrder.push_back("Prediker");
+	characterCardsInOrder.push_back("Koopman");
+	characterCardsInOrder.push_back("Bouwmeester");
+	characterCardsInOrder.push_back("Condottiere");
+
 }
 
 bool Game::waitForClients()
@@ -42,6 +54,8 @@ bool Game::waitForClients()
 void Game::run()
 {
 	dealCharacters();
+
+
 
 }
 
@@ -133,7 +147,7 @@ void Game::playCharacter()
 
 }
 
-void Game::addPlayer(std::shared_ptr<Socket> client)
+void Game::addPlayer(shared_ptr<Socket> client)
 {
 	if (clientNumber < 2){
 
@@ -146,12 +160,12 @@ void Game::addPlayer(std::shared_ptr<Socket> client)
 
 		if (connectedPlayers.size() == 1){
 
-			connectedPlayers[clientNumber]->sendMessage("You are Player " + std::to_string(clientNumber + 1) + ". The King!");
+			connectedPlayers[clientNumber]->sendMessage("You are Player " + to_string(clientNumber + 1) + ". The King!");
 			setPlayerCharacterToKing(clientNumber);
 		}
 		else if (connectedPlayers.size() == 2){
-			connectedPlayers[clientNumber + firstPlayerPositionCompensationValue]->sendMessage("You are Player " + std::to_string(clientNumber + 1));
-			std::shared_ptr<CharacterCard> characterCard = std::make_shared<CharacterCard>();
+			connectedPlayers[clientNumber + firstPlayerPositionCompensationValue]->sendMessage("You are Player " + to_string(clientNumber + 1));
+			shared_ptr<CharacterCard> characterCard = make_shared<CharacterCard>();
 			characterCard->mName = "-";
 			characterCard->mID = 0;
 			connectedPlayers[clientNumber]->setCurrentCharacter(characterCard);
@@ -165,12 +179,12 @@ bool Game::readAndLoadBuildingCardsFromCSVFile(){
 
 	bool isLoadingSuccesful = false;
 
-	std::string filePath = "..\\Resources\\";
-	std::string fileName = "Bouwkaarten.csv"; //karakterkaarten.csv
-	std::string fullFilePath = filePath + fileName;
-	std::ifstream file(fullFilePath);
+	string filePath = "..\\Resources\\";
+	string fileName = "Bouwkaarten.csv"; //karakterkaarten.csv
+	string fullFilePath = filePath + fileName;
+	ifstream file(fullFilePath);
 	char seperatorSymbol = ';';
-	std::string costString = "";
+	string costString = "";
 
 	BuildingCard buildingCard;
 
@@ -180,10 +194,10 @@ bool Game::readAndLoadBuildingCardsFromCSVFile(){
 
 		while (file.good() == true){
 
-			std::getline(file, buildingCard.mName, seperatorSymbol)
-				&& std::getline(file, costString, seperatorSymbol)
-				&& std::getline(file, buildingCard.mColor, seperatorSymbol)
-				&& std::getline(file, buildingCard.mDescription);
+			getline(file, buildingCard.mName, seperatorSymbol)
+				&& getline(file, costString, seperatorSymbol)
+				&& getline(file, buildingCard.mColor, seperatorSymbol)
+				&& getline(file, buildingCard.mDescription);
 
 			buildingCard.mCost = atoi(costString.c_str());
 
@@ -191,10 +205,10 @@ bool Game::readAndLoadBuildingCardsFromCSVFile(){
 		}
 		// Remove last element to eliminate unnecessary and non existing element
 		mBuildingCards.removeAt(mBuildingCards.getCardStackSize() - 1);
-		std::printf("Status: Building Cards loaded successfully.\n");
+		printf("Status: Building Cards loaded successfully.\n");
 	}
 	else{
-		std::cerr << "Status: Building Cards NOT loaded.\n";
+		cerr << "Status: Building Cards NOT loaded.\n";
 	}
 
 	mBuildingCards.shuffle();
@@ -208,14 +222,14 @@ bool Game::readAndLoadCharacterCardsFromCSVFile(){
 
 	bool isLoadingSuccesful = false;
 
-	std::string filePath = "..\\Resources\\";
-	std::string fileName = "karakterkaartenNEW.csv";
-	std::string fullFilePath = filePath + fileName;
+	string filePath = "..\\Resources\\";
+	string fileName = "karakterkaartenNEW.csv";
+	string fullFilePath = filePath + fileName;
 
 
-	std::ifstream file(fullFilePath);
+	ifstream file(fullFilePath);
 	char seperatorSymbol = ';';
-	std::string stringID = "";
+	string stringID = "";
 
 	CharacterCard characterCard;
 
@@ -224,31 +238,31 @@ bool Game::readAndLoadCharacterCardsFromCSVFile(){
 		isLoadingSuccesful = true;
 
 		while (file.good() == true){
-			std::getline(file, stringID, seperatorSymbol)
-				&& std::getline(file, characterCard.mName);
+			getline(file, stringID, seperatorSymbol)
+				&& getline(file, characterCard.mName);
 
 			characterCard.mID = atoi(stringID.c_str());
 			mCharacterCards.add(characterCard);
 		}
 		// Remove last element to eliminate unnecessary and non existing element
 		mCharacterCards.removeAt(mCharacterCards.getCardStackSize() - 1);
-		std::printf("Status: Character Cards loaded successfully.\n");
+		printf("Status: Character Cards loaded successfully.\n");
 	}
 	else{
-		std::cerr << "Status: Character Cards NOT loaded.\n";
+		cerr << "Status: Character Cards NOT loaded.\n";
 	}
 
 	mCharacterCards.shuffle();
 	return isLoadingSuccesful;
 }
 
-void Game::removeLastDisconnectedPlayer(std::shared_ptr<Socket> client)
+void Game::removeLastDisconnectedPlayer(shared_ptr<Socket> client)
 {
 	string currentClientIP = client->get_dotted_ip();
 	SOCKET currentClientSocket = client->get();
 
-	for (std::vector<shared_ptr<Player>>::iterator it = connectedPlayers.begin(); it != connectedPlayers.end(); ++it) {
-		/* std::cout << *it; ... */
+	for (vector<shared_ptr<Player>>::iterator it = connectedPlayers.begin(); it != connectedPlayers.end(); ++it) {
+		/* cout << *it; ... */
 
 
 		if (currentClientIP == (*it).get()->getPlayerClient()->get_dotted_ip()
@@ -293,36 +307,36 @@ int Game::getAmountOfConnectedPlayers()
 
 void Game::sendUpdatedClientDashboard(int playerNumber)
 {
-	std::string line1 = "Je bent nu de: " + connectedPlayers.at(playerNumber)->getCurrentCharacter()->getName() + "\n";
-	std::string line2 = "Goud: " + std::to_string(connectedPlayers.at(playerNumber)->getCurrentAmountOfGold()) + "\n";
-	std::string emptyLine1 = "\n";
+	string line1 = "Je bent nu de: " + connectedPlayers.at(playerNumber)->getCurrentCharacter()->getName() + "\n";
+	string line2 = "Goud: " + to_string(connectedPlayers.at(playerNumber)->getCurrentAmountOfGold()) + "\n";
+	string emptyLine1 = "\n";
 
-	std::vector<BuildingCard> playerBuildingCards = connectedPlayers.at(playerNumber)->getBoughtBuildingCards();
+	vector<BuildingCard> playerBuildingCards = connectedPlayers.at(playerNumber)->getBoughtBuildingCards();
 
-	std::string line3 = "Gebouwen:\n";
-	std::string line4 = " 1. Geen\n";
-	std::string line5 = " 2. Geen\n";
-	std::string line6 = " 3. Geen\n";
-	std::string emptyLine2 = "\n";
-	std::string line7 = "Handkaarten:\n";
-	std::string line8;
+	string line3 = "Gebouwen:\n";
+	string line4 = " 1. Geen\n";
+	string line5 = " 2. Geen\n";
+	string line6 = " 3. Geen\n";
+	string emptyLine2 = "\n";
+	string line7 = "Handkaarten:\n";
+	string line8;
 
 	for each (BuildingCard var in playerBuildingCards)
 	{
-		std::string buildingCard = " -"+var.getName() + " (" + var.getColor() +", " + std::to_string(var.getCost()) +") " + var.getDescription() + "\n";
+		string buildingCard = " -"+var.getName() + " (" + var.getColor() +", " + to_string(var.getCost()) +") " + var.getDescription() + "\n";
 		line8 += buildingCard;
 	} 
 
-	std::string emptyLine3 = "\n";
-	std::string line9 = "Maak een keuze:\n";
-	std::string line10 = "[0] Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)\n";
-	std::string line11 = "[1] Neem 2 goedstukken\n";
-	std::string line12 = "[2] Neem 2 bouwkaarten en leg er 1 af\n";
-	std::string line13 = "[3] Maak gebruik van de karakter eigenschap van de Magier\n";
-	std::string emptyLine4 = "\n";
-	std::string line14 = "[4] Bekijk je kaarten";
-	std::string emptyLine5 = "\n";
-	std::thread clientsHandler{ &Server::sendMessageToPlayer,
+	string emptyLine3 = "\n";
+	string line9 = "Maak een keuze:\n";
+	string line10 = "[0] Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)\n";
+	string line11 = "[1] Neem 2 goedstukken\n";
+	string line12 = "[2] Neem 2 bouwkaarten en leg er 1 af\n";
+	string line13 = "[3] Maak gebruik van de karakter eigenschap van de Magier\n";
+	string emptyLine4 = "\n";
+	string line14 = "[4] Bekijk je kaarten";
+	string emptyLine5 = "\n";
+	thread clientsHandler{ &Server::sendMessageToPlayer,
 		line1 + line2 + line3 + emptyLine1 + line4 + line5 + 
 		line6 + emptyLine2 + line7 + line8 + emptyLine3 + 
 		line9 + line10 + line11 + line12 + line13 + emptyLine4 + 
@@ -333,7 +347,7 @@ void Game::sendUpdatedClientDashboard(int playerNumber)
 
 void Game::setPlayerCharacterToKing(int playerNumber)
 {
-	std::shared_ptr<CharacterCard> kingCharacterCard = std::make_shared<CharacterCard>();
+	shared_ptr<CharacterCard> kingCharacterCard = make_shared<CharacterCard>();
 	kingCharacterCard->mName = "Koning";
 	kingCharacterCard->mID = 999;
 	connectedPlayers.at(playerNumber)->setCurrentCharacter(kingCharacterCard);
@@ -351,25 +365,25 @@ void Game::discardTopCharacterCard()
 	}
 }
 
-void Game::showRemainingCharactersCardsInDeckToClient(std::shared_ptr<Socket> currentPlayer)
+void Game::showRemainingCharactersCardsInDeckToClient(shared_ptr<Socket> currentPlayer)
 {
 	for (int i = 0; i < mCharacterCards.getCardStackSize(); i++)
 	{
-		currentPlayer->write("[" + std::to_string(i) + "] Card: " + mCharacterCards.at(i).getName() + " Card ID: " + std::to_string(mCharacterCards.at(i).getID()) + "\n");
+		currentPlayer->write("[" + to_string(i) + "] Card: " + mCharacterCards.at(i).getName() + " Card ID: " + to_string(mCharacterCards.at(i).getID()) + "\n");
 	}
 }
 
-void Game::pickCharacterCard(int cardNumber, std::shared_ptr<Socket> client, int playerNumber)
+void Game::pickCharacterCard(int cardNumber, shared_ptr<Socket> client, int playerNumber)
 {
 	connectedPlayers.at(playerNumber)->addCharacterCard(mCharacterCards.at(cardNumber));
 	mCharacterCards.removeAt(cardNumber);
-	client->write("Card number " + std::to_string(cardNumber) + " selected.\n");
+	client->write("Card number " + to_string(cardNumber) + " selected.\n");
 }
 
-void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentClient)
+void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 {
-	int commandNumber = std::atoi(command.c_str());	//Change the incoming message to an integer!
-	std::string identityNumberOfCurrentClient = currentClient->get_dotted_ip() + std::to_string(currentClient->get());
+	int commandNumber = atoi(command.c_str());	//Change the incoming message to an integer!
+	string identityNumberOfCurrentClient = currentClient->get_dotted_ip() + to_string(currentClient->get());
 
 #pragma  region HANDLE STATE: KING_PEEKS_AT_TOP_CARD_AND_DISCARDS
 
@@ -381,7 +395,7 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 				case 0:
 				{
 					CharacterCard topCard = peekCharacter();
-					currentClient->write(serverName + "Card name: " + topCard.getName() + " Card ID: " + std::to_string(topCard.getID()) + "\n");
+					currentClient->write(serverName + "Card name: " + topCard.getName() + " Card ID: " + to_string(topCard.getID()) + "\n");
 					break;
 
 				}
@@ -489,7 +503,7 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 
 
 
-				int commandNumber = std::atoi(command.c_str());
+				int commandNumber = atoi(command.c_str());
 
 					if (commandNumber >= 0 && commandNumber < mCharacterCards.getCardStackSize()){
 
@@ -545,8 +559,8 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 				case 0:
 				{
 						// Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)
-						std::vector<BuildingCard> buildingsBoughtByOpponent = connectedPlayers.at(1)->getBoughtBuildingCards();
-						std::string opponentsBuildings = "\n";
+						vector<BuildingCard> buildingsBoughtByOpponent = connectedPlayers.at(1)->getBoughtBuildingCards();
+						string opponentsBuildings = "\n";
 						if (buildingsBoughtByOpponent.size() == 0)
 						{
 							opponentsBuildings = "0 gebouwen";
@@ -554,11 +568,11 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 						else{
 							for each (BuildingCard buildingCard in buildingsBoughtByOpponent)
 							{
-								opponentsBuildings += ("-"+buildingCard.getName() + " (" + buildingCard.getColor()+","+std::to_string(buildingCard.getCost())+ " )\n" + buildingCard.getDescription()+"\n");
+								opponentsBuildings += ("-"+buildingCard.getName() + " (" + buildingCard.getColor()+","+to_string(buildingCard.getCost())+ " )\n" + buildingCard.getDescription()+"\n");
 							}
 							
 						}
-						std::string opponentDetails = "Aantal gebouwen van tegenstander: " +opponentsBuildings + "\nAantal goud van tegenstander: " + std::to_string(connectedPlayers.at(1)->getCurrentAmountOfGold());
+						string opponentDetails = "Aantal gebouwen van tegenstander: " +opponentsBuildings + "\nAantal goud van tegenstander: " + to_string(connectedPlayers.at(1)->getCurrentAmountOfGold());
 						currentClient->write(opponentDetails+"\n");		
 						break;				
 				}
@@ -570,7 +584,7 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 						connectedPlayers.at(0)->setPlayerGoldCollectionStatus(true);
 					}
 						// Neem 2 goudstukken
-						currentClient->write("Aantal goud dat ik heb:" + std::to_string(connectedPlayers.at(0)->getCurrentAmountOfGold()) + "\n");
+						currentClient->write("Aantal goud dat ik heb:" + to_string(connectedPlayers.at(0)->getCurrentAmountOfGold()) + "\n");
 						break;		
 				}
 	
@@ -590,19 +604,19 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 		
 				case 4:
 				{
-					std::vector <BuildingCard> buildingCardsInHand = connectedPlayers.at(0)->getBuildingCardsInHand();
-					std::vector<CharacterCard> characterCardsInHand = connectedPlayers.at(0)->getCharacterCardsInHand();
+					vector <BuildingCard> buildingCardsInHand = connectedPlayers.at(0)->getBuildingCardsInHand();
+					vector<CharacterCard> characterCardsInHand = connectedPlayers.at(0)->getCharacterCardsInHand();
 
-					std::string characterCardsDetails = "\n";
+					string characterCardsDetails = "\n";
 					for each (CharacterCard characterCard in characterCardsInHand)
 					{
-						characterCardsDetails += ("-" + characterCard.getName() + ", ID: " + std::to_string(characterCard.getID())+"\n");
+						characterCardsDetails += ("-" + characterCard.getName() + ", ID: " + to_string(characterCard.getID())+"\n");
 					}
-					std::string buildingCardsDetails = "\n";
+					string buildingCardsDetails = "\n";
 
 					for each (BuildingCard buildingCard in buildingCardsInHand)
 					{
-						buildingCardsDetails += ("-" + buildingCard.getName() + " (" + buildingCard.getColor() + "," + std::to_string(buildingCard.getCost()) + " )\n" + buildingCard.getDescription() + "\n");
+						buildingCardsDetails += ("-" + buildingCard.getName() + " (" + buildingCard.getColor() + "," + to_string(buildingCard.getCost()) + " )\n" + buildingCard.getDescription() + "\n");
 					}
 						// Bekijk je handkaarten
 						currentClient->write("Character Cards:\n"+characterCardsDetails + "\nBuilding Cards:" +buildingCardsDetails+"\n");
@@ -634,27 +648,27 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 		if (identityNumberOfCurrentClient == playerTwoIdentityNumber){
 			switch (commandNumber)
 			{
-			case 0:
-				// Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)
-				currentClient->write("Not implemented yet. :/\n");
-				break;
-			case 1:
-				// Neem 2 goudstukken
-				currentClient->write("Not implemented yet. :/\n");
-				break;
-			case 2:
-				// Neem 2 bouwkaarten en leg er 1 af
-				currentClient->write("Not implemented yet. :/\n");
-				break;
-			case 3:
-				// Maak gebruik van de karaktereingenschap van de Magier
-				currentClient->write("Not implemented yet. :/\n");
-				break;
-			default:
-				currentClient->write("Hey, you wrote: '");
-				currentClient->write(command);
-				currentClient->write("', but I'm not doing anything with it.\n");
-				break;
+				case 0:
+					// Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)
+					currentClient->write("Not implemented yet. :/\n");
+					break;
+				case 1:
+					// Neem 2 goudstukken
+					currentClient->write("Not implemented yet. :/\n");
+					break;
+				case 2:
+					// Neem 2 bouwkaarten en leg er 1 af
+					currentClient->write("Not implemented yet. :/\n");
+					break;
+				case 3:
+					// Maak gebruik van de karaktereingenschap van de Magier
+					currentClient->write("Not implemented yet. :/\n");
+					break;
+				default:
+					currentClient->write("Hey, you wrote: '");
+					currentClient->write(command);
+					currentClient->write("', but I'm not doing anything with it.\n");
+					break;
 			}
 		}
 		else
@@ -704,17 +718,78 @@ void Game::consumeCommand(std::string command, std::shared_ptr<Socket> currentCl
 
 }
 
-void Game::broadCastEverySecond(std::string message)
+// Method responsible for checking which player has the character card announced by the King.
+// The method (ofcourse) requires the name of the characther card announced in order to do the checking
+// returns a simple string representing the player that has the announced card.
+// if the none of the players have the announced card, then a "NONE" string will be returned.
+string Game::isPlayerTheAnnouncedCharacter(CharacterCard announcedCharacter)
+{
+	vector<CharacterCard> playerOneHandCards = connectedPlayers.at(0)->getCharacterCardsInHand();
+	vector<CharacterCard> playerTwoHandCards = connectedPlayers.at(1)->getCharacterCardsInHand();
+	//TODO: Issue, player two does not have any cards in hand after initial round.
+	//Check all the character cards in the player one's hand
+	for (vector<CharacterCard>::iterator it = playerOneHandCards.begin(); it != playerOneHandCards.end(); ++it)
+	{
+		// if player One has the announced character card
+		if (it->getName() == announcedCharacter.getName()) 
+		{
+			return "PLAYER1";
+		}
+
+	}
+	//Check all the character cards in the player two's hand
+	for (vector<CharacterCard>::iterator it = playerOneHandCards.begin(); it != playerOneHandCards.end(); ++it)
+	{
+		// if player Two has the announced character card
+		if (it->getName() == announcedCharacter.getName())
+		{
+			return "PLAYER2";
+		}
+
+	}
+	
+	//Otherwise return false when none of have the announced character card.
+	return "NONE";
+}
+
+void Game::StartAnnouncingCharacterCards()
+{
+	broadCastMessage(characterCardsInOrder.at(0));
+	Sleep(1000);
+	broadCastMessage("Reveal yourself!");
+
+	CharacterCard announcedCharacterCard;
+	announcedCharacterCard.mName = characterCardsInOrder.at(Server::mGame->announcedCharacterCardCounter);
+
+	string result = Server::mGame->isPlayerTheAnnouncedCharacter(announcedCharacterCard);
+	Sleep(1000);
+	if (result == "PLAYER1")
+	{
+		broadCastMessage("Player one has :" + announcedCharacterCard.mName + " !");
+	}
+	else if (result == "PLAYER2")
+	{
+		broadCastMessage("Player one has :" + announcedCharacterCard.mName + " !");
+	}
+	else if (result == "NONE")
+	{
+		broadCastMessage("There are no more players with character cards. Time to shuffle cards and start a new round!");
+	}
+}
+
+//Method responsible for notifying players that the King will start announcing character cards soon.
+//Specifically in 30 seconds after all players have gotten enough cards to start playing the game.
+void Game::broadCastEverySecond(string message)
 {
 	for (int i = 30; i >= 0; i--)
 	{
 		Sleep(1000);
 		if (i == 30){
-			thread broadcastHandler1{ &Server::sendMessageToAllPlayers, message + std::to_string(i) + " seconds \n" };
+			thread broadcastHandler1{ &Server::sendMessageToAllPlayers, message + to_string(i) + " seconds \n" };
 			broadcastHandler1.detach();
 		}
 		else if (i < 6 && i > 0){
-			thread broadcastHandler2{ &Server::sendMessageToAllPlayers, message + std::to_string(i) + " seconds \n" };
+			thread broadcastHandler2{ &Server::sendMessageToAllPlayers, message + to_string(i) + " seconds \n" };
 			broadcastHandler2.detach();
 		}
 		else if (i == 0){
@@ -722,8 +797,14 @@ void Game::broadCastEverySecond(std::string message)
 			broadcastHandler3.detach();
 		
 			currentGameState = KING_GOES_THROUGH_ALL_CHARACTER_CARDS;
+			StartAnnouncingCharacterCards();
 		}
 
 	}
 }
 
+void Game::broadCastMessage(string message)
+{
+	thread broadcastHandler1{ &Server::sendMessageToAllPlayers, message+ " \n" };
+	broadcastHandler1.detach();
+}

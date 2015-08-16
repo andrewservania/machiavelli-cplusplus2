@@ -26,7 +26,7 @@ private:
 
 	int clientNumber;
 	bool topCardDiscarded = false;
-	std::string serverName = "MACHIAVELLI-SERVER: ";
+	string serverName = "MACHIAVELLI-SERVER: ";
 
 	bool playerOneHasChosenACharacterCard = false;
 	bool playerOneHasDiscardedACharacterCard = false;
@@ -48,11 +48,15 @@ public:
 		KING_GOES_THROUGH_ALL_CHARACTER_CARDS
 	};
 	static GameStates currentGameState;
-	std::string playerOneIdentityNumber = "";
-	std::string playerTwoIdentityNumber = "";
+	string playerOneIdentityNumber = "";
+	string playerTwoIdentityNumber = "";
 	int playerOnePortNumber = 0;
 	int playerTwoPortNumber = 999;
-	std::vector<shared_ptr<Player>> connectedPlayers;
+	vector<shared_ptr<Player>> connectedPlayers;
+
+	static vector<string> characterCardsInOrder;
+	int announcedCharacterCardCounter = 0;
+	//static Game instance;
 
 	Game();
 	~Game();
@@ -67,41 +71,46 @@ public:
 	void playRound();
 	void countPlayerScores();
 	void playCharacter(); // Do I need this method?
-	void addPlayer(std::shared_ptr<Socket> client);
+	void addPlayer(shared_ptr<Socket> client);
 	bool readAndLoadBuildingCardsFromCSVFile();
 	bool readAndLoadCharacterCardsFromCSVFile();
-	void removeLastDisconnectedPlayer(std::shared_ptr<Socket> client);
+	void removeLastDisconnectedPlayer(shared_ptr<Socket> client);
 	shared_ptr<Player> getPlayer(int ID);
 	int getAmountOfConnectedPlayers();
 	void sendUpdatedClientDashboard(int playerNumber);
 	void setPlayerCharacterToKing(int playerNumber);
 	void discardTopCharacterCard();
-	void showRemainingCharactersCardsInDeckToClient(std::shared_ptr<Socket> currentPlayer);
-	void pickCharacterCard(int cardNumber, std::shared_ptr<Socket> client, int playerNumber);
-	void consumeCommand(std::string command, std::shared_ptr<Socket> currentClient);
+	void showRemainingCharactersCardsInDeckToClient(shared_ptr<Socket> currentPlayer);
+	void pickCharacterCard(int cardNumber, shared_ptr<Socket> client, int playerNumber);
+	void consumeCommand(string command, shared_ptr<Socket> currentClient);
+
+	string isPlayerTheAnnouncedCharacter(CharacterCard announcedCharacter);
+	void static StartAnnouncingCharacterCards();
+
 	template<class T>
 	bool loadCSV(T card);
-	static void broadCastEverySecond(std::string message);
+	static void broadCastEverySecond(string message);
+	static void broadCastMessage(string message);
 };
 
 template<class T>
 bool Game::loadCSV(T card)
 {
 	bool isLoadingSuccesful = false;
-	std::string filePath = "..\\Resources\\";
-	std::string fileName = "";
-	std::string fullFilePath ="";
-	std::ifstream file;
+	string filePath = "..\\Resources\\";
+	string fileName = "";
+	string fullFilePath ="";
+	ifstream file;
 	char seperatorSymbol = ';';
 
-	std::string classType = typeid(card).name();
+	string classType = typeid(card).name();
 	if (classType == "class BuildingCard"){
 
 		fileName = "Bouwkaarten.csv";
 		fullFilePath = filePath + fileName;
-		std::ifstream file(fullFilePath);
+		ifstream file(fullFilePath);
 
-		std::string costString = "";
+		string costString = "";
 		BuildingCard buildingCard;
 
 		if (file.good() == true){ /*To check if file is good/exists */
@@ -109,10 +118,10 @@ bool Game::loadCSV(T card)
 
 			while (file.good() == true){
 
-				std::getline(file, buildingCard.mName, seperatorSymbol)
-					&& std::getline(file, costString, seperatorSymbol)
-					&& std::getline(file, buildingCard.mColor, seperatorSymbol)
-					&& std::getline(file, buildingCard.mDescription);
+				getline(file, buildingCard.mName, seperatorSymbol)
+					&& getline(file, costString, seperatorSymbol)
+					&& getline(file, buildingCard.mColor, seperatorSymbol)
+					&& getline(file, buildingCard.mDescription);
 
 				buildingCard.mCost = atoi(costString.c_str());
 
@@ -129,17 +138,17 @@ bool Game::loadCSV(T card)
 
 		fileName = "karakterkaarten.csv";
 		fullFilePath = filePath + fileName;
-		std::ifstream file(fullFilePath);
+		ifstream file(fullFilePath);
 
-		std::string stringID = "";
+		string stringID = "";
 		CharacterCard characterCard;
 
 		if (file.good() == true){ /*To check if file is good/exists */
 			isLoadingSuccesful = true;
 
 			while (file.good() == true){
-				std::getline(file, stringID, seperatorSymbol)
-					&& std::getline(file, characterCard.mName);
+				getline(file, stringID, seperatorSymbol)
+					&& getline(file, characterCard.mName);
 
 				characterCard.mID = atoi(stringID.c_str());
 				mCharacterCards.add(characterCard);

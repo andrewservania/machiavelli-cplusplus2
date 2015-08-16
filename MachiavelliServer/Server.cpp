@@ -7,8 +7,9 @@
 
 static Sync_queue<ClientCommand> queue;
 
-static std::unique_ptr<Game> mGame;
+
 static std::vector<std::shared_ptr<Socket>> connectedClients;
+unique_ptr<Game> Server::mGame;
 
 Server::Server()
 {
