@@ -35,15 +35,11 @@ void Player::addHandCard()
 
 }
 
-void Player::addTableCard()
+void Player::addBuildingCardOnTable(BuildingCard boughtBuildingCard)
 {
-
+	buildingCardsBoughtAndOnTable.push_back(boughtBuildingCard);
 }
 
-void Player::buyBuilding()
-{
-
-}
 
 void Player::removeCharacters()
 {

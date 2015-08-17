@@ -36,12 +36,11 @@ public:
 	void removeGold(int goldToRemove);
 
 	void addHandCard();
-	void addTableCard();
+	void addBuildingCardOnTable(BuildingCard boughtBuildingCard);
 
 	void addCharacterCard(CharacterCard characterCard);
 	void addBuildingCard(BuildingCard buildingCard);
 
-	void buyBuilding();
 	void removeCharacters(); 
 
 	void removeHandCard();

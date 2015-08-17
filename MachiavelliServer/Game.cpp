@@ -315,19 +315,40 @@ void Game::sendUpdatedClientDashboard(int playerNumber)
 	vector<BuildingCard> playerBuildingCards = connectedPlayers.at(playerNumber)->getBoughtBuildingCards();
 
 	string line3 = "Gebouwen:\n";
-	string line4 = " 1. Geen\n";
-	string line5 = " 2. Geen\n";
-	string line6 = " 3. Geen\n";
+	string line4 = "";
+
+
+	// retrieve all building cards bought by the player and print them.
+	if (playerBuildingCards.size() < 1)
+	{
+		line4 = "1. Geen\n2. Geen\n\3. Geen\n";
+	}
+	else
+	{
+		for each (BuildingCard var in playerBuildingCards)
+		{
+			string boughtbuildingCards = " -" + var.getName() + " (" + var.getColor() + ", " + to_string(var.getCost()) + ") " + var.getDescription() + "\n";
+			line4 += boughtbuildingCards;
+		}
+	}
 	string emptyLine2 = "\n";
 	string line7 = "Handkaarten:\n";
 	string line8;
 
+	// retrieve all building cards from players hand and print them out
 	for each (BuildingCard var in playerBuildingCards)
 	{
 		string buildingCard = " -"+var.getName() + " (" + var.getColor() +", " + to_string(var.getCost()) +") " + var.getDescription() + "\n";
 		line8 += buildingCard;
 	} 
 
+	// retrieve all character cards from player's hand and print them out
+	vector<CharacterCard> playerCharacterCards = connectedPlayers.at(playerNumber)->getCharacterCardsInHand();
+	for each (CharacterCard var in playerCharacterCards)
+	{
+		string characterCardsInHand = " -" + var.getName() + +" (" + to_string(var.getID()) + ") \n";
+		line8 += characterCardsInHand;
+	}
 	string emptyLine3 = "\n";
 	string line9 = "Maak een keuze:\n";
 	string line10 = "[0] Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)\n";
@@ -335,13 +356,14 @@ void Game::sendUpdatedClientDashboard(int playerNumber)
 	string line12 = "[2] Neem 2 bouwkaarten en leg er 1 af\n";
 	string line13 = "[3] Maak gebruik van de karakter eigenschap van de Magier\n";
 	string emptyLine4 = "\n";
-	string line14 = "[4] Bekijk je kaarten";
+	string line14 = "[4] Bekijk je kaarten\n";
+	string line15 = "[5] Koop een gebouw\n";
+	string line16 = "[9] End your turn (If applicable)";
 	string emptyLine5 = "\n";
 	thread clientsHandler{ &Server::sendMessageToPlayer,
-		line1 + line2 + line3 + emptyLine1 + line4 + line5 + 
-		line6 + emptyLine2 + line7 + line8 + emptyLine3 + 
+		line1 + line2 + line3 + emptyLine1 + line4 + emptyLine2 + line7 + line8 + emptyLine3 + 
 		line9 + line10 + line11 + line12 + line13 + emptyLine4 + 
-		line14 + "\n",playerNumber };
+		line14 + line15 + emptyLine5 + line16 +  "\n",playerNumber };
 	clientsHandler.detach();
 
 }
@@ -399,7 +421,7 @@ void Game::givePlayer_TwoBuildingCards(int currentClientNumber, shared_ptr<Socke
 			mBuildingCards.removeAt(1);
 
 			currentClient->write(message + "\n"); // print the new building cards to the player
-
+			sendUpdatedClientDashboard(currentClientNumber);
 			playerOneHasPickedTwoBuildingCards = true;
 			
 		}
@@ -418,7 +440,7 @@ void Game::givePlayer_TwoBuildingCards(int currentClientNumber, shared_ptr<Socke
 			mBuildingCards.removeAt(1);
 
 			currentClient->write(message + "\n"); // print the new building cards to the player
-
+			sendUpdatedClientDashboard(currentClientNumber);
 			playerTwoHasPickedTwoBuildingCards = true;
 
 		}
@@ -612,7 +634,7 @@ void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 			{
 				case 0: // Command 0: Bekijk het goud en de  gebouwen van de tegenstander (en maak denn de keuze)
 				{
-						vector<BuildingCard> buildingsBoughtByOpponent = connectedPlayers.at(1)->getBoughtBuildingCards();
+						vector<BuildingCard> buildingsBoughtByOpponent = connectedPlayers.at(0)->getBoughtBuildingCards();
 						string opponentsBuildings = "\n";
 						if (buildingsBoughtByOpponent.size() == 0)
 						{
@@ -642,7 +664,8 @@ void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 				}
 	
 				case 2: // Command 2: Neem 2 bouwkaarten en leg er 1 af
-				{				
+				{		
+					currentClient->write("CLEARSCREEN\n");
 					givePlayer_TwoBuildingCards(0, currentClient);
 
 					
@@ -677,6 +700,30 @@ void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 						break;
 				}
 
+				case 5: // Command 5: The player can buy a building if he/she has enough gold coins
+				{
+					currentClient->write("CLEARSCREEN\n");
+					currentClient->write("Please select the building card you would like to buy\n");
+					vector <BuildingCard> buildingCardsInHand = connectedPlayers.at(0)->getBuildingCardsInHand();
+					string buildingCardsToBePrinted = "";
+					int buildingCardCounter = 0;
+					for each(BuildingCard buildingCard in buildingCardsInHand)
+					{
+						buildingCardsToBePrinted += ("[" + to_string(buildingCardCounter) + "]" + buildingCard.getName() + " (" + buildingCard.getColor() + "," + to_string(buildingCard.getCost()) + " )\n" + buildingCard.getDescription() + "\n");
+						buildingCardCounter++;
+					}
+					
+					currentClient->write(buildingCardsToBePrinted + "\n");
+					currentGameState = PLAYER_ONE_BUYING_BUILDING_CARD;
+					break;
+				}
+
+				case 9: // Command 9: End turn
+				{
+					resetRound();
+					currentGameState = PLAYER_TWO_TURN;
+					break;
+				}
 				default:
 				{
 					currentClient->write("Hey, you wrote: '");
@@ -692,6 +739,49 @@ void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 		}
 	}
 #pragma endregion
+
+
+
+		else if (currentGameState == PLAYER_ONE_BUYING_BUILDING_CARD)
+		{
+
+				vector <BuildingCard> buildingCardsInHand = connectedPlayers.at(0)->getBuildingCardsInHand();
+				if (identityNumberOfCurrentClient == playerOneIdentityNumber){
+					if (commandNumber < buildingCardsInHand.size()) // if the player has selected a card that is within the range of the building cards
+					{
+						if (connectedPlayers.at(0)->getCurrentAmountOfGold() >= buildingCardsInHand.at(commandNumber).getCost())
+						{
+							// then player can buy this card!
+							// Add it to the building Cards on player's table
+							// decrease the amount of gold coins spent from player
+							connectedPlayers.at(0)->addBuildingCard(buildingCardsInHand.at(commandNumber));
+							connectedPlayers.at(0)->removeGold(buildingCardsInHand.at(commandNumber).getCost());
+							currentClient->write("You have bought the following card:\n - " + buildingCardsInHand.at(commandNumber).getName() + "\n");
+					
+							buildingCardsInHand.erase(buildingCardsInHand.begin(), buildingCardsInHand.end() + commandNumber); // erase the building that has been bought from hand
+							sendUpdatedClientDashboard(0);
+							currentGameState = PLAYER_ONE_TURN;
+						} else
+						{
+							currentClient->write("HAH! Sorry, you do not have enough gold coins to buy this building.");
+						}
+
+					} else
+					{
+						currentClient->write("Hey, you wrote: '");
+						currentClient->write(command);
+						currentClient->write("', but I'm not doing anything with it.\n");
+					}
+				}
+				else
+				{
+					currentClient->write(serverName + "Please wait for your turn. Thank you!\n");
+				}
+			
+			
+		}
+
+	
 
 
 
@@ -854,16 +944,18 @@ void Game::resetRound()
 {
 	connectedPlayers.at(0)->setPlayerGoldCollectionStatus(false);
 	connectedPlayers.at(1)->setPlayerGoldCollectionStatus(false);
+	
 }
 
 //Method responsible for notifying players that the King will start announcing character cards soon.
 //Specifically in 30 seconds after all players have gotten enough cards to start playing the game.
 void Game::broadCastEverySecond(string message)
 {
-	for (int i = 30; i >= 0; i--)
+	int amountOfSeconds = 7;
+	for (int i = amountOfSeconds; i >= 0; i--)
 	{
 		Sleep(1000);
-		if (i == 30){
+		if (i == amountOfSeconds){
 			thread broadcastHandler1{ &Server::sendMessageToAllPlayers, message + to_string(i) + " seconds \n" };
 			broadcastHandler1.detach();
 		}

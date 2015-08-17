@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.40302.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Machiavelli", "Machiavelli\Machiavelli.vcxproj", "{FEA39A0F-87FD-4236-87C2-896647B80E17}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MachiavelliClient", "Machiavelli\Machiavelli.vcxproj", "{FEA39A0F-87FD-4236-87C2-896647B80E17}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MachiavelliServer", "MachiavelliServer\MachiavelliServer.vcxproj", "{BEAA1BE5-D2B6-4AE9-A6A8-FCB7DFE0FD84}"
 EndProject
