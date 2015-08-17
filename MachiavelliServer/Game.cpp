@@ -754,7 +754,7 @@ void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 							// then player can buy this card!
 							// Add it to the building Cards on player's table
 							// decrease the amount of gold coins spent from player
-							connectedPlayers.at(0)->addBuildingCard(buildingCardsInHand.at(commandNumber));
+							connectedPlayers.at(0)->addBuildingCardOnTable(buildingCardsInHand.at(commandNumber));
 							connectedPlayers.at(0)->removeGold(buildingCardsInHand.at(commandNumber).getCost());
 							currentClient->write("You have bought the following card:\n - " + buildingCardsInHand.at(commandNumber).getName() + "\n");
 					
