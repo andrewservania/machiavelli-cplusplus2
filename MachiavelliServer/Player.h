@@ -43,7 +43,7 @@ public:
 
 	void removeCharacters(); 
 
-	void removeHandCard();
+	void clearCharacterCards();
 	void removeTableCard();
 
 	void clearAll();

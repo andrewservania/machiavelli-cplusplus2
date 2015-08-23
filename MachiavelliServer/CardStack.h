@@ -19,6 +19,7 @@ public:
 	int getCardStackSize();
 	void shuffle();
 	bool loadCSV();
+	void clearCardStack();
 };
 
 template <class T>
@@ -67,4 +68,10 @@ template<class T>
 bool CardStack<T>::loadCSV(){
 
 }
+template <class T>
+void CardStack<T>::clearCardStack()
+{
+	cards.clear();
+}
+
 

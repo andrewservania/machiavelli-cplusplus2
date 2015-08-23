@@ -133,9 +133,12 @@ void Game::pickCharacter()
 
 }
 
-void Game::playRound()
+void Game::playRound(shared_ptr<Socket> currentClient)
 {
-
+	currentClient->write("CLEARSCREEN\n");
+	currentClient->write("Now choose one of the remaining character cards and discard an other one:\n");
+	showRemainingCharactersCardsInDeckToClient(currentClient);
+	currentGameState = PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN;
 }
 
 void Game::countPlayerScores()
@@ -451,7 +454,6 @@ void Game::givePlayer_TwoBuildingCards(int currentClientNumber, shared_ptr<Socke
 
 }
 
-
 void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 {
 	int commandNumber = atoi(command.c_str());	//Change the incoming message to an integer!
@@ -476,6 +478,8 @@ void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 					discardTopCharacterCard();
 					currentClient->write("Top card discarded\n");
 					Sleep(1000);
+
+					//Use code starting here -  Start character card selection here for future rounds
 					currentClient->write("CLEARSCREEN\n");
 					currentClient->write("Now choose one of the remaining character cards and discard an other one:\n");
 					showRemainingCharactersCardsInDeckToClient(currentClient);
@@ -721,7 +725,9 @@ void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 				case 9: // Command 9: End turn
 				{
 					resetRound();
-					currentGameState = PLAYER_TWO_TURN;
+					currentGameState = KING_GOES_THROUGH_ALL_CHARACTER_CARDS;
+					StartAnnouncingCharacterCards();
+					//currentGameState = PLAYER_TWO_TURN;
 					break;
 				}
 				default:
@@ -945,9 +951,37 @@ void Game::StartAnnouncingCharacterCards()
 	{
 		broadCastMessage("King: There are no more players with character the announced character card! I shall announce the next one..");
 		Sleep(1000);
-		if (Server::mGame->announcedCharacterCardCounter <=7)
+		if (Server::mGame->announcedCharacterCardCounter <7)
 		{
 			StartAnnouncingCharacterCards();
+		}
+		else
+		{
+
+			broadCastMessage("No more cards left Reseting round!");
+
+			// Players have to 'hand in' their character cards back
+
+			// One way to do this is to set both players character card stack to zero
+			Server::mGame->connectedPlayers.at(0)->clearCharacterCards();
+			Server::mGame->connectedPlayers.at(1)->clearCharacterCards();
+
+			// Also reset the announced character card counter
+			Server::mGame->announcedCharacterCardCounter = 0;
+			// Finally, reset all parameters for both players. As in reset whether
+			//1) Gold coins have been collected
+			//2) Character cards have been collected
+			Server::mGame->resetRound();
+			Sleep(1000);
+			
+			// Choose a new player to be king
+
+			Server::mGame->connectedPlayers.at(0)->getPlayerClient()->write("CLEARSCREEN\n");
+			Server::mGame->connectedPlayers.at(0)->getPlayerClient()->write("Choose character cards and discard an other one:\n");
+			Server::mGame->mCharacterCards.clearCardStack();
+			Server::mGame->readAndLoadCharacterCardsFromCSVFile();
+			Server::mGame->showRemainingCharactersCardsInDeckToClient(Server::mGame->connectedPlayers.at(0)->getPlayerClient());
+			currentGameState = PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN;
 		}
 		
 	}
@@ -960,6 +994,7 @@ void Game::resetRound()
 {
 	connectedPlayers.at(0)->setPlayerGoldCollectionStatus(false);
 	connectedPlayers.at(1)->setPlayerGoldCollectionStatus(false);
+	
 	
 }
 

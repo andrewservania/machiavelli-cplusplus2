@@ -46,9 +46,9 @@ void Player::removeCharacters()
 
 }
 
-void Player::removeHandCard()
+void Player::clearCharacterCards()
 {
-
+	characterCardsInHand.clear();
 }
 
 void Player::removeTableCard()

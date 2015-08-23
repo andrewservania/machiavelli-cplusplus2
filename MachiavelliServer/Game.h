@@ -70,7 +70,7 @@ public:
 	void discardCharacterCard(int cardNumber);
 	CharacterCard peekCharacter();
 	void pickCharacter(); // Do I need this method?
-	void playRound();
+	void playRound(shared_ptr<Socket> currentClient);
 	void countPlayerScores();
 	void playCharacter(); // Do I need this method?
 	void addPlayer(shared_ptr<Socket> client);
