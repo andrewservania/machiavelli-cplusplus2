@@ -454,6 +454,13 @@ void Game::givePlayer_TwoBuildingCards(int currentClientNumber, shared_ptr<Socke
 
 }
 
+
+
+
+
+
+
+
 void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 {
 	int commandNumber = atoi(command.c_str());	//Change the incoming message to an integer!
@@ -615,7 +622,28 @@ void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 							}
 					}
 					else{
-						currentClient->write("Please pick a card to discard.\n");
+						currentClient->write("Please pick a character card to discard. If there are now more cards left a new round will begin. Enter 0 to begin.\n");
+						if (mCharacterCards.getCardStackSize() == 0){
+
+							thread messageHandler1{ &Server::sendMessageToAllPlayers, "CLEARSCREEN\n" };
+							messageHandler1.detach();
+							thread messageHandler2{ &Server::sendMessageToAllPlayers, "Let the first round begin!\n" };
+							messageHandler2.detach();
+							currentGameState = PLAYER_ONE_TURN;
+							Sleep(1000);
+							thread messageHandler3{ &Server::sendMessageToAllPlayers, "CLEARSCREEN\n" };
+							messageHandler3.detach();
+							thread messageHandler4{ &Server::sendMessageToAllPlayers, "Let the first round begin!\n" };
+							messageHandler4.detach();
+							initGame();
+							sendUpdatedClientDashboard(0);
+							sendUpdatedClientDashboard(1);
+
+							thread broadcastHandler{ &Game::broadCastEverySecond, " King will starting going through character cards in " };
+							broadcastHandler.detach();
+							// Start the first Machiavelli game turn! Finally!
+
+						}
 					}
 			
 
@@ -868,6 +896,12 @@ void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 
 }
 
+
+
+
+
+
+
 // Method responsible for checking which player has the character card announced by the King.
 // The method (ofcourse) requires the name of the characther card announced in order to do the checking
 // returns a simple string representing the player that has the announced card.
@@ -993,8 +1027,12 @@ void Game::StartAnnouncingCharacterCards()
 void Game::resetRound()
 {
 	connectedPlayers.at(0)->setPlayerGoldCollectionStatus(false);
+	playerOneHasChosenACharacterCard = false;
+	playerOneHasDiscardedACharacterCard = false;
+
 	connectedPlayers.at(1)->setPlayerGoldCollectionStatus(false);
-	
+	playerTwoHasChosenACharacterCard = false;
+	playerTwoHasDiscardedACharacterCard = false;
 	
 }
 
