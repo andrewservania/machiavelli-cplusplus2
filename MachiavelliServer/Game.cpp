@@ -354,7 +354,7 @@ void Game::sendUpdatedClientDashboard(int playerNumber)
 	string line10 = "[0] Bekijk het goed en de gebouwen van de tegenstander (en maak dan de keuze)\n";
 	string line11 = "[1] Neem 2 goedstukken\n";
 	string line12 = "[2] Neem 2 bouwkaarten en leg er 1 af\n";
-	string line13 = "[3] Maak gebruik van de karakter eigenschap van de Magier\n";
+	string line13 = "[3] Maak gebruik van de karakter eigenschap van de " + connectedPlayers.at(playerNumber)->getCurrentCharacter()->getName() + "\n";
 	string emptyLine4 = "\n";
 	string line14 = "[4] Bekijk je kaarten\n";
 	string line15 = "[5] Koop een gebouw\n";
@@ -911,6 +911,13 @@ void Game::StartAnnouncingCharacterCards()
 	{
 		broadCastMessage("Player one has :" + announcedCharacterCard.mName + " !");
 		currentGameState = PLAYER_ONE_TURN;
+
+		//encapsulate card object into a shared pointer object and set the current character for the player.
+		shared_ptr<CharacterCard> card = make_shared<CharacterCard>();
+		card->mName = announcedCharacterCard.mName;
+		card->mID = announcedCharacterCard.mID;
+		//
+		Server::mGame->connectedPlayers.at(0)->setCurrentCharacter(card);
 		Server::mGame->sendUpdatedClientDashboard(0);
 		Server::mGame->sendUpdatedClientDashboard(1);
 		Sleep(1000);
@@ -920,6 +927,15 @@ void Game::StartAnnouncingCharacterCards()
 	{
 		broadCastMessage("Player one has :" + announcedCharacterCard.mName + " !");
 		currentGameState = PLAYER_TWO_TURN;
+
+
+		//encapsulate card object into a shared pointer object and set the current character for the player.
+		shared_ptr<CharacterCard> card = make_shared<CharacterCard>();
+		card->mName = announcedCharacterCard.mName;
+		card->mID = announcedCharacterCard.mID;
+		//
+		Server::mGame->connectedPlayers.at(1)->setCurrentCharacter(card);
+
 		Server::mGame->sendUpdatedClientDashboard(0);
 		Server::mGame->sendUpdatedClientDashboard(1);
 		Sleep(1000);
