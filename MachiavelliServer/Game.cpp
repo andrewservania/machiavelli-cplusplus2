@@ -324,7 +324,7 @@ void Game::sendUpdatedClientDashboard(int playerNumber)
 	// retrieve all building cards bought by the player and print them.
 	if (playerBuildingCards.size() < 1)
 	{
-		line4 = "1. Geen\n2. Geen\n\3. Geen\n";
+		line4 = "1. Geen\n2. Geen\n3. Geen\n";
 	}
 	else
 	{
@@ -704,10 +704,12 @@ void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 						break;
 				}
 		
-				case 3:// Command 3: Maak gebruik van de karaktereingenschap van de Magier
+				case 3:// Command 3: Maak gebruik van de karaktereingenschap van de character van de player
 				{
+					broadCastMessage("Player 1 has chosen to use its character's power!\n");
+					broadCastMessage(connectedPlayers.at(0)->getCurrentCharacter()->getPowerDescription() + "\n");
+					
 						
-						currentClient->write("Not implemented yet. \n");
 						break;		
 				}
 		

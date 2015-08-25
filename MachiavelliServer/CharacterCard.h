@@ -13,6 +13,7 @@ public:
 	~CharacterCard();
 	int getID();
 	std::string getName();
+	std::string getPowerDescription();
 	
 };
 
