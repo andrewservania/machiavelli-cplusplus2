@@ -1,0 +1,1 @@
+A console application-based version of Machiavelli using a client/server model that allows users to play the game via a network/internet.
