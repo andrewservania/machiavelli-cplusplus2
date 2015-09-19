@@ -516,7 +516,6 @@ void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 #pragma endregion
 
 
-
 #pragma region HANDLE STATE: PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN
 	else if (currentGameState == PLAYER_ONE_CHARACTER_CARD_SELECTION_TURN){
 		if (identityNumberOfCurrentClient == playerOneIdentityNumber){
@@ -776,7 +775,130 @@ void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 	}
 #pragma endregion
 
+#pragma region HANDLE STATE: PLAYER_TWO_TURN
 
+
+
+	else if (currentGameState == PLAYER_TWO_TURN){
+		if (identityNumberOfCurrentClient == playerTwoIdentityNumber) // To distinguish between connected client number one and connected client number two
+		{
+			switch (commandNumber)
+			{
+			case 0: // Command 0: Bekijk het goud en de  gebouwen van de tegenstander (en maak denn de keuze)
+			{
+				vector<BuildingCard> buildingsBoughtByOpponent = connectedPlayers.at(0)->getBoughtBuildingCards();
+				string opponentsBuildings = "\n";
+				if (buildingsBoughtByOpponent.size() == 0)
+				{
+					opponentsBuildings = "0 gebouwen";
+				}
+				else{
+					for each (BuildingCard buildingCard in buildingsBoughtByOpponent)
+					{
+						opponentsBuildings += ("-" + buildingCard.getName() + " (" + buildingCard.getColor() + "," + to_string(buildingCard.getCost()) + " )\n" + buildingCard.getDescription() + "\n");
+					}
+
+				}
+				string opponentDetails = "Aantal gebouwen van tegenstander: " + opponentsBuildings + "\nAantal goud van tegenstander: " + to_string(connectedPlayers.at(1)->getCurrentAmountOfGold());
+				currentClient->write(opponentDetails + "\n");
+				break;
+			}
+			case 1: // Command 1: Neem 2 goed stukken
+			{
+				if (connectedPlayers.at(1)->playerHasCollectedGold() == false)
+				{
+					connectedPlayers.at(1)->addGold(2);
+					connectedPlayers.at(1)->setPlayerGoldCollectionStatus(true);
+				}
+				// Neem 2 goudstukken
+				currentClient->write("Aantal goud dat ik heb:" + to_string(connectedPlayers.at(1)->getCurrentAmountOfGold()) + "\n");
+				break;
+			}
+
+			case 2: // Command 2: Neem 2 bouwkaarten en leg er 1 af
+			{
+				currentClient->write("CLEARSCREEN\n");
+				givePlayer_TwoBuildingCards(1, currentClient);
+
+
+				break;
+			}
+
+			case 3:// Command 3: Maak gebruik van de karaktereingenschap van de character van de player
+			{
+				broadCastMessage("Player 2 has chosen to use its character's power!\n");
+				broadCastMessage(connectedPlayers.at(1)->getCurrentCharacter()->getPowerDescription() + "\n");
+
+
+				break;
+			}
+
+			case 4: // Command 4: The player can use this command to take a look at his/her card
+			{
+				vector <BuildingCard> buildingCardsInHand = connectedPlayers.at(1)->getBuildingCardsInHand();
+				vector<CharacterCard> characterCardsInHand = connectedPlayers.at(1)->getCharacterCardsInHand();
+
+				string characterCardsDetails = "\n";
+				for each (CharacterCard characterCard in characterCardsInHand)
+				{
+					characterCardsDetails += ("-" + characterCard.getName() + ", ID: " + to_string(characterCard.getID()) + "\n");
+				}
+				string buildingCardsDetails = "\n";
+
+				for each (BuildingCard buildingCard in buildingCardsInHand)
+				{
+					buildingCardsDetails += ("-" + buildingCard.getName() + " (" + buildingCard.getColor() + "," + to_string(buildingCard.getCost()) + " )\n" + buildingCard.getDescription() + "\n");
+				}
+				// Bekijk je handkaarten
+				currentClient->write("Character Cards:\n" + characterCardsDetails + "\nBuilding Cards:" + buildingCardsDetails + "\n");
+				break;
+			}
+
+			case 5: // Command 5: The player can buy a building if he/she has enough gold coins
+			{
+				currentClient->write("CLEARSCREEN\n");
+				currentClient->write("Please select the building card you would like to buy\n");
+				vector <BuildingCard> buildingCardsInHand = connectedPlayers.at(1)->getBuildingCardsInHand();
+				string buildingCardsToBePrinted = "";
+				int buildingCardCounter = 0;
+				for each(BuildingCard buildingCard in buildingCardsInHand)
+				{
+					buildingCardsToBePrinted += ("[" + to_string(buildingCardCounter) + "]" + buildingCard.getName() + " (" + buildingCard.getColor() + "," + to_string(buildingCard.getCost()) + " )\n" + buildingCard.getDescription() + "\n");
+					buildingCardCounter++;
+				}
+
+				currentClient->write(buildingCardsToBePrinted + "\n");
+				currentGameState = PLAYER_TWO_BUYING_BUILDING_CARD;
+				break;
+			}
+
+			case 9: // Command 9: End turn
+			{
+				resetRound();
+				currentGameState = KING_GOES_THROUGH_ALL_CHARACTER_CARDS;
+				StartAnnouncingCharacterCards();
+				//currentGameState = PLAYER_TWO_TURN;
+				break;
+			}
+			default:
+			{
+				currentClient->write("Hey, you wrote: '");
+				currentClient->write(command);
+				currentClient->write("', but I'm not doing anything with it.\n");
+				break;
+			}
+
+			}
+		}
+		else{
+			currentClient->write(serverName + "Please wait for your turn. Thank you!\n");
+		}
+	}
+
+#pragma endregion
+
+
+#pragma region HANDLE STATE: PLAYER_ONE_BUYING_BUILDING_CARD
 
 		else if (currentGameState == PLAYER_ONE_BUYING_BUILDING_CARD)
 		{
@@ -817,8 +939,53 @@ void Game::consumeCommand(string command, shared_ptr<Socket> currentClient)
 			
 		}
 
-	
 
+#pragma endregion
+	
+#pragma region HANDLE STATE: PLAYER_TWO_BUYING_BUILDING_CARD
+
+		else if (currentGameState == PLAYER_TWO_BUYING_BUILDING_CARD)
+		{
+
+			vector <BuildingCard> buildingCardsInHand = connectedPlayers.at(1)->getBuildingCardsInHand();
+			if (identityNumberOfCurrentClient == playerTwoIdentityNumber){
+				if (commandNumber < buildingCardsInHand.size()) // if the player has selected a card that is within the range of the building cards
+				{
+					if (connectedPlayers.at(1)->getCurrentAmountOfGold() >= buildingCardsInHand.at(commandNumber).getCost())
+					{
+						// then player can buy this card!
+						// Add it to the building Cards on player's table
+						// decrease the amount of gold coins spent from player
+						connectedPlayers.at(1)->addBuildingCardOnTable(buildingCardsInHand.at(commandNumber));
+						connectedPlayers.at(1)->removeGold(buildingCardsInHand.at(commandNumber).getCost());
+						currentClient->write("You have bought the following card:\n - " + buildingCardsInHand.at(commandNumber).getName() + "\n");
+
+						buildingCardsInHand.erase(buildingCardsInHand.begin(), buildingCardsInHand.end() + commandNumber); // erase the building that has been bought from hand
+						sendUpdatedClientDashboard(1);
+						currentGameState = PLAYER_TWO_TURN;
+					}
+					else
+					{
+						currentClient->write("HAH! Sorry, you do not have enough gold coins to buy this building.");
+					}
+
+				}
+				else
+				{
+					currentClient->write("Hey, you wrote: '");
+					currentClient->write(command);
+					currentClient->write("', but I'm not doing anything with it.\n");
+				}
+			}
+			else
+			{
+				currentClient->write(serverName + "Please wait for your turn. Thank you!\n");
+			}
+
+
+		}
+
+#pragma endregion
 
 
 
